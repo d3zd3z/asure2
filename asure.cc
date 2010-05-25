@@ -8,10 +8,14 @@
 #include <vector>
 #include <algorithm>
 
+#include "dir.h"
+#include "hash.h"
+
 using std::string;
 using std::printf;
 using std::vector;
 using std::cout;
+using std::ios_base;
 
 extern "C" {
 #include <sys/types.h>
@@ -50,6 +54,19 @@ struct name_ino_t {
   }
 };
 
+class dircloser {
+  DIR *dirp;
+  public:
+    dircloser(DIR *p) { dirp = p; }
+    ~dircloser() {
+      cout << "closing\n";
+      int r = closedir(dirp);
+      if (r != 0)
+	// TODO: Something meaningful to do here?
+	throw 7;
+    }
+};
+
 // Read in all of the names in a given directory, pairing them up with their
 // inode number.
 static void
@@ -58,6 +75,7 @@ get_names(string path, vector<name_ino_t>& result)
   DIR *dirp = opendir(path.c_str());
   if (dirp == NULL)
     throw 5;
+  dircloser cleanup(dirp);
 
   while (true) {
     errno = 0;
@@ -72,11 +90,6 @@ get_names(string path, vector<name_ino_t>& result)
 
     result.push_back(name_ino_t(name, ent->d_ino));
   }
-
-  // TODO: Do this cleanup even with exceptions.
-  int r = closedir(dirp);
-  if (r != 0)
-    throw 7;
 }
 
 dirnode::dirnode(string path)
@@ -118,7 +131,8 @@ dirnode::~dirnode()
 
 void walk(string path, string name)
 {
-  dirnode here(path);
+  asure::Directory here(path);
+  /*
   typedef vector<dirnode::node_t>::iterator iter;
   cout << "Enter " << name << "\n";
   for (iter i = here.dirs.begin(); i != here.dirs.end(); i++) {
@@ -126,11 +140,22 @@ void walk(string path, string name)
   }
   for (iter i = here.nondirs.begin(); i != here.nondirs.end(); i++) {
     cout << "Item  " << i->name << '\n';
+    if (S_ISREG(i->stat->st_mode)) {
+      file_hash hash;
+      hash_file(path + "/" + i->name, hash);
+      cout << "  hash: " << static_cast<string>(hash) << '\n';
+    }
   }
   cout << "Leave " << name << "\n";
+  */
 }
 
 int main()
 {
-  walk(".", "__root__");
+  try {
+    walk(".", "__root__");
+  }
+  catch (int ret) {
+    cout << "Raised: " << ret << '\n';
+  }
 }
