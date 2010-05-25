@@ -10,6 +10,8 @@ extern "C" {
 #include <memory>
 #include "hash.h"
 
+namespace asure {
+
 class Buffer {
   public:
     static const int bufsize = 4096;
@@ -62,4 +64,6 @@ asure::Hash::operator std::string()
     buf[2*i+1] = itoc(data[i] & 0x0f);
   }
   return buf;
+}
+
 }

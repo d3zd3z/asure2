@@ -7,13 +7,13 @@
 
 namespace asure {
 
-  struct Hash {
-    unsigned char data[16];
-    operator std::string();
+struct Hash {
+  unsigned char data[16];
+  operator std::string();
 
-    // Set this hash to be the contents of the given file.
-    void ofFile(std::string path);
-  };
+  // Set this hash to be the contents of the given file.
+  void ofFile(std::string path);
+};
 
 }
 
