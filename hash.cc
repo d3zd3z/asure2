@@ -1,13 +1,14 @@
 // Computing file hashes.
-
-#include <memory>
-#include "hash.h"
-
+//
 extern "C" {
 #include <sys/types.h>
 #include <sys/fcntl.h>
 #include <openssl/md5.h>
+#include <errno.h>
 }
+
+#include <memory>
+#include "hash.h"
 
 class Buffer {
   public:
@@ -17,17 +18,21 @@ class Buffer {
     ~Buffer() { delete[] data; }
 };
 
-void hash_file(std::string path, file_hash& hash)
+void
+asure::Hash::ofFile(std::string path)
 {
   MD5_CTX ctx;
   MD5_Init(&ctx);
 
   Buffer buffer;
 
-  // TODO: Try with O_NOATIME, and then retry without it, if it fails.
+  errno = 0;
   int fd = open(path.c_str(), O_RDONLY | O_NOATIME);
+  if (fd < 0 && errno == EPERM)
+    fd = open(path.c_str(), O_RDONLY);
   if (fd < 0)
-    throw fd;
+    // TODO: Better error handling.
+    throw errno;
   while (true) {
     ssize_t len = read(fd, buffer.data, buffer.bufsize);
     if (len < 0)
@@ -38,7 +43,7 @@ void hash_file(std::string path, file_hash& hash)
   }
   close(fd);
 
-  MD5_Final(hash.data, &ctx);
+  MD5_Final(data, &ctx);
 }
 
 static inline char itoc(unsigned char val)
@@ -49,7 +54,7 @@ static inline char itoc(unsigned char val)
     return val - 10 + 'a';
 }
 
-file_hash::operator std::string()
+asure::Hash::operator std::string()
 {
   std::string buf(32, 'X');
   for (int i = 0; i < 16; i++) {

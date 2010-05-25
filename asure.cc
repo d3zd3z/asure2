@@ -12,6 +12,10 @@ using std::string;
 using std::vector;
 using std::cout;
 
+using asure::Hash;
+using asure::DirNode;
+using asure::Directory;
+
 static void indent(int level)
 {
   for (int i = 0; i < level; i++)
@@ -20,24 +24,24 @@ static void indent(int level)
 
 void walk(string path, string name, int level)
 {
-  asure::Directory here(path);
-  typedef vector<asure::DirNode*>::iterator iter;
+  Directory here(path);
+  typedef vector<DirNode*>::iterator iter;
   indent(level);
   cout << "Enter " << name << '\n';
   {
-    vector<asure::DirNode*>& dirs = here.getDirs();
+    vector<DirNode*>& dirs = here.getDirs();
     for (iter i = dirs.begin(); i != dirs.end(); i++) {
       walk(path + '/' + (*i)->name, (*i)->name, level + 1);
     }
   }
   {
-    vector<asure::DirNode*>& nondirs = here.getNonDirs();
+    vector<DirNode*>& nondirs = here.getNonDirs();
     for (iter i = nondirs.begin(); i != nondirs.end(); i++) {
       indent(level+1);
       cout << "Item " << (*i)->name << '\n';
       if (S_ISREG((*i)->stat.st_mode)) {
-	file_hash hash;
-	hash_file(path + "/" + (*i)->name, hash);
+	Hash hash;
+	hash.ofFile(path + "/" + (*i)->name);
 	indent(level);
 	cout << "  hash: " << static_cast<string>(hash) << '\n';
       }

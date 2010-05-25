@@ -5,11 +5,16 @@
 
 #include <string>
 
-struct file_hash {
-  unsigned char data[16];
-  operator std::string();
-};
+namespace asure {
 
-void hash_file(std::string path, file_hash& hash);
+  struct Hash {
+    unsigned char data[16];
+    operator std::string();
+
+    // Set this hash to be the contents of the given file.
+    void ofFile(std::string path);
+  };
+
+}
 
 #endif
