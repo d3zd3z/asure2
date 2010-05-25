@@ -1,0 +1,7 @@
+.*.swp
+*.d
+*.o
+*.rpo
+
+# The executable.
+asure
