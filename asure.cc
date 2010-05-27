@@ -56,21 +56,33 @@ void walk(string path, string name, int level)
   cout << "Leave " << name << '\n';
 }
 
-void walk2(string path, string name, int level)
+void walk2(shared_ptr<FsDirSource>& here, int level)
 {
-  shared_ptr<FsDirSource> here(FsDirSource::walkFsDir(path));
+  cout << "Enter: " << here->getPath() << "\n";
+  typedef FsDirSource::DirIterator DI;
+  const DI diEnd = here->dirEnd();
+  for (DI i = here->dirBegin(); i != diEnd; ++i) {
+    cout << "  " << (*i)->getName() << '\t' << (*i)->getPath() << '\n';
+    shared_ptr<FsDirSource> child = (*i)->getDirSource();
+    walk2(child, level + 1);
+  }
+
+  cout << "files:\n";
   typedef FsDirSource::FileIterator FI;
   const FI fiEnd = here->fileEnd();
   for (FI i = here->fileBegin(); i != fiEnd; ++i) {
-    cout << (*i)->getName() << '\t' << (*i)->getPath() << '\n';
+    cout << "  " << (*i)->getName() << '\t' << (*i)->getPath() << '\n';
   }
+
+  cout << "leave:\n";
 }
 
 int main()
 {
   try {
     // walk(".", "__root__", 0);
-    walk2(".", "__root__", 0);
+    shared_ptr<FsDirSource> here(FsDirSource::walkFsDir("."));
+    walk2(here, 0);
   }
   catch (int ret) {
     cout << "Raised: " << ret << '\n';

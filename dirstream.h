@@ -16,23 +16,30 @@ namespace stream {
 
 class Entry {
   public:
-    Entry(const std::string& name) : _name(name) { }
+    Entry(const std::string& name, const std::string& path)
+      : _name(name), _path(path) { }
     const std::string& getName() const { return _name; }
+
+    // This is just temporary.
+    const std::string& getPath() const { return _path; }
   protected:
     const std::string _name;
+    const std::string _path;
 };
 
 class FsDirSource;
 class DirEntry : public Entry {
   public:
     DirEntry(const std::string& name, const std::string& path)
-      : Entry(name), _path(path) { }
+      : Entry(name, path) { }
     std::tr1::shared_ptr<FsDirSource> getDirSource();
+};
 
-    // This is just temporary.
-    const std::string& getPath() const { return _path; }
-  protected:
-    const std::string _path;
+class FsDirSource;
+class FileEntry : public Entry {
+  public:
+    FileEntry(const std::string& name, const std::string& path)
+      : Entry(name, path) { }
 };
 
 // An iterator over source type 'S', returning entries of type 'E'.
@@ -69,9 +76,13 @@ class FsDirSource {
       : _path(path), real(path), cachedFileEnd(real.getNonDirs().end()) { }
     // ~FsDirSource();
 
-    typedef EntryIterator<FsDirSource, DirEntry, std::vector<DirNode*>::const_iterator > FileIterator;
+    typedef EntryIterator<FsDirSource, FileEntry, std::vector<DirNode*>::const_iterator > FileIterator;
     FileIterator fileBegin();
     FileIterator fileEnd();
+
+    typedef EntryIterator<FsDirSource, DirEntry, std::vector<DirNode*>::const_iterator > DirIterator;
+    DirIterator dirBegin();
+    DirIterator dirEnd();
 
     static std::tr1::shared_ptr<FsDirSource> walkFsDir(std::string path);
 
