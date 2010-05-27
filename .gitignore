@@ -5,3 +5,6 @@
 
 # The executable.
 asure
+
+# scons' database.
+.sconsign.dblite

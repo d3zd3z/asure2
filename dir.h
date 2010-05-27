@@ -32,8 +32,8 @@ class Directory {
     Directory(std::string path);
     ~Directory();
 
-    std::vector<DirNode*>& getDirs() { return dirs_; }
-    std::vector<DirNode*>& getNonDirs() { return nondirs_; }
+    const std::vector<DirNode*>& getDirs() const { return dirs_; }
+    const std::vector<DirNode*>& getNonDirs() const { return nondirs_; }
   private:
     std::vector<DirNode*> dirs_;
     std::vector<DirNode*> nondirs_;
