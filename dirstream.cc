@@ -168,5 +168,11 @@ FsDirSource::DirIterator::operator++()
   return *this;
 }
 
+DirEntryProxy
+walkPath(string& path)
+{
+  return DirEntryProxy(new LocalDirEntry(path, path, DirNode::getDir(path)));
+}
+
 }
 }

@@ -21,6 +21,8 @@ using asure::DirNodeProxy;
 using asure::Directory;
 
 using asure::stream::FsDirSource;
+using asure::stream::FsDirSourceProxy;
+using asure::stream::DirEntryProxy;
 
 static void indent(int level)
 {
@@ -67,16 +69,16 @@ void showAtts(const asure::stream::EntryProxy& entry)
   }
 }
 
-void walk2(shared_ptr<FsDirSource>& here, int level)
+void walk2(DirEntryProxy dirNode, int level)
 {
-  cout << "Enter: " << here->getPath() << "\n";
+  cout << "Enter: " << dirNode->getPath() << '/' << dirNode->getName() << "\n";
+  showAtts(dirNode);
+  FsDirSourceProxy here = dirNode->getDirSource();
   typedef FsDirSource::DirIterator DI;
   const DI diEnd = here->dirEnd();
   for (DI i = here->dirBegin(); i != diEnd; ++i) {
     cout << "  " << (*i)->getName() << '\t' << (*i)->getPath() << '\n';
-    showAtts(*i);
-    shared_ptr<FsDirSource> child = (*i)->getDirSource();
-    walk2(child, level + 1);
+    walk2(*i, level + 1);
   }
 
   cout << "files:\n";
@@ -94,7 +96,8 @@ int main()
 {
   try {
     // walk(".", "__root__", 0);
-    shared_ptr<FsDirSource> here(FsDirSource::walkFsDir("."));
+    string root = ".";
+    DirEntryProxy here = asure::stream::walkPath(root);
     walk2(here, 0);
   }
   catch (int ret) {

@@ -125,6 +125,9 @@ class FsDirSource {
     const std::vector<DirNodeProxy>::const_iterator cachedFileEnd;
 };
 
+// This starts by walking from the top of some directory.
+DirEntryProxy walkPath(std::string& path);
+
 }
 }
 

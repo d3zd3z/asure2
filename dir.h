@@ -16,6 +16,8 @@ namespace asure {
 
 // A single entry in a directory.  Represented by an entry name, and
 // the 'stat' data for that node.
+class DirNode;
+typedef std::tr1::shared_ptr<DirNode> DirNodeProxy;
 class DirNode {
   public:
     std::string name;
@@ -25,8 +27,11 @@ class DirNode {
     bool operator<(const DirNode& other) const {
       return name < other.name;
     }
+
+    // The root needs to be read directly, not as a consequence of
+    // reading other directories.
+    static DirNodeProxy getDir(std::string& n);
 };
-typedef std::tr1::shared_ptr<DirNode> DirNodeProxy;
 
 // The contents of a directory.
 class Directory {

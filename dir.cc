@@ -5,6 +5,7 @@ extern "C" {
 #include <errno.h>
 }
 
+#include <cassert>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -63,6 +64,16 @@ Directory::~Directory()
   //   delete *i;
   // for (iter i = nondirs_.begin(); i != nondirs_.end(); i++)
   //   delete *i;
+}
+
+DirNodeProxy
+DirNode::getDir(std::string& n)
+{
+  DirNodeProxy node = DirNodeProxy(new DirNode(n));
+  int result = lstat(n.c_str(), &node->stat);
+  // TODO Handle errors.
+  assert(result == 0);
+  return DirNodeProxy(node);
 }
 
 // Close an open directory.
