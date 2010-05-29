@@ -23,6 +23,29 @@ FsDirSource::walkFsDir(const string path)
 }
 
 
+//////////////////////////////////////////////////////////////////////
+// File sources use this class to compute the attributes.
+class LocalFileEntry : public Entry {
+  public:
+    LocalFileEntry(const std::string& name, const std::string& path)
+      : Entry(name, path) { }
+  protected:
+    virtual void computeAtts();
+    virtual void computeExpensiveAtts();
+};
+
+void
+LocalFileEntry::computeAtts()
+{
+  typedef Atts::value_type value;
+  assert(false);
+}
+
+void
+LocalFileEntry::computeExpensiveAtts()
+{
+  assert(false);
+}
 
 FsDirSource::FileIterator
 FsDirSource::fileBegin()
@@ -40,7 +63,7 @@ template <>
 FsDirSource::FileIterator::EP
 FsDirSource::FileIterator::operator*() const
 {
-  return EP(new FileEntry((*_priv)->name, _parent->getPath()));
+  return EP(new LocalFileEntry((*_priv)->name, _parent->getPath()));
 }
 
 template <>
@@ -58,7 +81,22 @@ FsDirSource::FileIterator::operator++()
   return *this;
 }
 
+//////////////////////////////////////////////////////////////////////
+// Local directory sources.
+class LocalDirEntry : public DirEntry {
+  public:
+    LocalDirEntry(const std::string& name, const std::string& path)
+      : DirEntry(name, path) { }
+  protected:
+    virtual void computeAtts();
+    virtual void computeExpensiveAtts() { }
+};
 
+void
+LocalDirEntry::computeAtts()
+{
+  assert(false);
+}
 
 FsDirSource::DirIterator
 FsDirSource::dirBegin()
@@ -78,7 +116,7 @@ template <>
 FsDirSource::DirIterator::EP
 FsDirSource::DirIterator::operator*() const
 {
-  return EP(new DirEntry((*_priv)->name, _parent->getPath()));
+  return EP(new LocalDirEntry((*_priv)->name, _parent->getPath()));
 }
 
 template <>

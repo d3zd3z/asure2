@@ -16,7 +16,7 @@ using std::cout;
 using std::tr1::shared_ptr;
 
 using asure::Hash;
-using asure::DirNode;
+using asure::DirNodeProxy;
 using asure::Directory;
 
 using asure::stream::FsDirSource;
@@ -30,17 +30,17 @@ static void indent(int level)
 void walk(string path, string name, int level)
 {
   Directory here(path);
-  typedef vector<DirNode*>::const_iterator iter;
+  typedef vector<DirNodeProxy>::const_iterator iter;
   indent(level);
   cout << "Enter " << name << '\n';
   {
-    const vector<DirNode*>& dirs = here.getDirs();
+    const vector<DirNodeProxy>& dirs = here.getDirs();
     for (iter i = dirs.begin(); i != dirs.end(); i++) {
       walk(path + '/' + (*i)->name, (*i)->name, level + 1);
     }
   }
   {
-    const vector<DirNode*>& nondirs = here.getNonDirs();
+    const vector<DirNodeProxy>& nondirs = here.getNonDirs();
     for (iter i = nondirs.begin(); i != nondirs.end(); i++) {
       indent(level+1);
       cout << "Item " << (*i)->name << '\n';

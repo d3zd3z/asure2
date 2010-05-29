@@ -39,7 +39,7 @@ Directory::Directory(string path)
   // Stat all of the names, in inode order.
   std::sort(names.begin(), names.end());
   for (vector<NameIno>::iterator i = names.begin(); i != names.end(); i++) {
-    DirNode* node = new DirNode(i->name);
+    DirNodeProxy node = DirNodeProxy(new DirNode(i->name));
     int result = lstat((path + "/" + i->name).c_str(), &node->stat);
     if (result == 0) {
       if (S_ISDIR(node->stat.st_mode))
@@ -48,7 +48,6 @@ Directory::Directory(string path)
 	nondirs_.push_back(node);
     } else {
       // TODO: Warn about unable to stat.
-      delete node;
     }
   }
 
@@ -59,11 +58,11 @@ Directory::Directory(string path)
 
 Directory::~Directory()
 {
-  typedef vector<DirNode*>::iterator iter;
-  for (iter i = dirs_.begin(); i != dirs_.end(); i++)
-    delete *i;
-  for (iter i = nondirs_.begin(); i != nondirs_.end(); i++)
-    delete *i;
+  // typedef vector<DirNodeProxy>::iterator iter;
+  // for (iter i = dirs_.begin(); i != dirs_.end(); i++)
+  //   delete *i;
+  // for (iter i = nondirs_.begin(); i != nondirs_.end(); i++)
+  //   delete *i;
 }
 
 // Close an open directory.

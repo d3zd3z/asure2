@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <tr1/memory>
 
 extern "C" {
 #include <sys/types.h>
@@ -25,6 +26,7 @@ class DirNode {
       return name < other.name;
     }
 };
+typedef std::tr1::shared_ptr<DirNode> DirNodeProxy;
 
 // The contents of a directory.
 class Directory {
@@ -32,11 +34,11 @@ class Directory {
     Directory(std::string path);
     ~Directory();
 
-    const std::vector<DirNode*>& getDirs() const { return dirs_; }
-    const std::vector<DirNode*>& getNonDirs() const { return nondirs_; }
+    const std::vector<DirNodeProxy>& getDirs() const { return dirs_; }
+    const std::vector<DirNodeProxy>& getNonDirs() const { return nondirs_; }
   private:
-    std::vector<DirNode*> dirs_;
-    std::vector<DirNode*> nondirs_;
+    std::vector<DirNodeProxy> dirs_;
+    std::vector<DirNodeProxy> nondirs_;
 };
 
 }
