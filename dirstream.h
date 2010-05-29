@@ -113,11 +113,11 @@ class FsDirSource {
     DirIterator dirBegin();
     DirIterator dirEnd();
 
-    static FsDirSourceProxy walkFsDir(std::string path);
-
     const std::string& getPath() const { return _path; }
 
   private:
+    friend FsDirSourceProxy DirEntry::getDirSource();
+    static FsDirSourceProxy walkFsDir(std::string path);
     const std::string _path;
     const Directory real;
 
