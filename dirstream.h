@@ -26,11 +26,14 @@ class Entry {
 
     typedef std::map<std::string, std::string> Atts;
 
-    const Atts& getAtts() {
+    const Atts& getAtts() const {
       if (!_attsComputed) {
-	this->computeAtts();
-	this->computeExpensiveAtts();
-	_attsComputed = true;
+	// The attribute computations are kind of a cache update, so
+	// consider them save, even without the const.
+	Entry* mthis = const_cast<Entry*>(this);
+	mthis->computeAtts();
+	mthis->computeExpensiveAtts();
+	mthis->_attsComputed = true;
       }
       return _atts;
     }

@@ -10,6 +10,7 @@
 #include "dirstream.h"
 #include "dir.h"
 #include "hash.h"
+#include "surefile.h"
 
 using std::string;
 using std::vector;
@@ -98,7 +99,8 @@ int main()
     // walk(".", "__root__", 0);
     string root = ".";
     DirEntryProxy here = asure::stream::walkPath(root);
-    walk2(here, 0);
+    asure::saveSurefile("2sure.dat", "2sure.0", here);
+    // walk2(here, 0);
   }
   catch (int ret) {
     cout << "Raised: " << ret << '\n';

@@ -5,6 +5,7 @@ extern "C" {
 #include <errno.h>
 }
 
+#include <iostream>
 #include <cassert>
 #include <string>
 #include <vector>
@@ -95,8 +96,10 @@ class DirCloser {
 void NameIno::getNames(string path, vector<NameIno>& result)
 {
   DIR *dirp = opendir(path.c_str());
-  if (dirp == NULL)
+  if (dirp == NULL) {
+    std::cerr << "Unable to open dir: " << path << '\n';
     throw errno;
+  }
   DirCloser cleanup(dirp);
 
   while (true) {

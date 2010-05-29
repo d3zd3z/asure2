@@ -1,6 +1,10 @@
 // Directory streams.
 
+#include <errno.h>
+
 #include <sstream>
+#include <iostream>
+
 #include "dir.h"
 #include "dirstream.h"
 #include "hash.h"
@@ -14,7 +18,10 @@ namespace stream {
 shared_ptr<FsDirSource>
 DirEntry::getDirSource()
 {
-  return FsDirSource::walkFsDir(_path + '/' + _name);
+  if (_name.length() > 0)
+    return FsDirSource::walkFsDir(_path + '/' + _name);
+  else
+    return FsDirSource::walkFsDir(_path);
 }
 
 
@@ -58,9 +65,25 @@ LocalFileEntry::computeAtts()
     _atts.insert(value("ctime", lltoa(stat.st_ctime)));
     _atts.insert(value("ino", lltoa(stat.st_ino)));
     _atts.insert(value("perm", lltoa(stat.st_mode & ~S_IFMT)));
+  } else if (S_ISLNK(stat.st_mode)) {
+    _atts.insert(value("kind", "lnk"));
   } else {
+    std::cerr << "Unimplemented file type: " << (stat.st_mode & S_IFMT) << '\n';
     assert(false);
   }
+}
+
+static string
+getLink(string path, int length)
+{
+  char buf[length];
+  ssize_t len = readlink(path.c_str(), buf, length);
+  if (len < 0)
+    throw errno;
+  else if (len < length)
+    return string(buf, len);
+  else
+    return getLink(path, 2*length);
 }
 
 void
@@ -72,6 +95,9 @@ LocalFileEntry::computeExpensiveAtts()
     Hash h;
     h.ofFile(_path + "/" + _name);
     _atts.insert(value("md5", h));
+  } else if (S_ISLNK(stat.st_mode)) {
+    string target = getLink(_path + "/" + _name, 128);
+    _atts.insert(value("targ", target));
   }
 }
 
@@ -171,7 +197,8 @@ FsDirSource::DirIterator::operator++()
 DirEntryProxy
 walkPath(string& path)
 {
-  return DirEntryProxy(new LocalDirEntry(path, path, DirNode::getDir(path)));
+  // Note the special marker of the empty string for the root.
+  return DirEntryProxy(new LocalDirEntry("", path, DirNode::getDir(path)));
 }
 
 }
