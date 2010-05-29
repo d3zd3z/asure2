@@ -1,7 +1,9 @@
 // Directory streams.
 
+#include <sstream>
 #include "dir.h"
 #include "dirstream.h"
+#include "hash.h"
 
 using std::string;
 using std::tr1::shared_ptr;
@@ -27,24 +29,50 @@ FsDirSource::walkFsDir(const string path)
 // File sources use this class to compute the attributes.
 class LocalFileEntry : public Entry {
   public:
-    LocalFileEntry(const std::string& name, const std::string& path)
-      : Entry(name, path) { }
+    LocalFileEntry(const std::string& name, const std::string& path, const DirNodeProxy& node)
+      : Entry(name, path), node_(node) { }
   protected:
     virtual void computeAtts();
     virtual void computeExpensiveAtts();
+    const DirNodeProxy node_;
 };
+
+static string
+lltoa(long long value)
+{
+  std::stringstream ss;
+  ss << value;
+  return ss.str();
+}
 
 void
 LocalFileEntry::computeAtts()
 {
   typedef Atts::value_type value;
-  assert(false);
+  const struct stat& stat = node_->stat;
+  if (S_ISREG(stat.st_mode)) {
+    _atts.insert(value("kind", "file"));
+    _atts.insert(value("uid", lltoa(stat.st_uid)));
+    _atts.insert(value("gid", lltoa(stat.st_gid)));
+    _atts.insert(value("mtime", lltoa(stat.st_mtime)));
+    _atts.insert(value("ctime", lltoa(stat.st_ctime)));
+    _atts.insert(value("ino", lltoa(stat.st_ino)));
+    _atts.insert(value("perm", lltoa(stat.st_mode & ~S_IFMT)));
+  } else {
+    assert(false);
+  }
 }
 
 void
 LocalFileEntry::computeExpensiveAtts()
 {
-  assert(false);
+  typedef Atts::value_type value;
+  const struct stat& stat = node_->stat;
+  if (S_ISREG(stat.st_mode)) {
+    Hash h;
+    h.ofFile(_path + "/" + _name);
+    _atts.insert(value("md5", h));
+  }
 }
 
 FsDirSource::FileIterator
@@ -63,7 +91,7 @@ template <>
 FsDirSource::FileIterator::EP
 FsDirSource::FileIterator::operator*() const
 {
-  return EP(new LocalFileEntry((*_priv)->name, _parent->getPath()));
+  return EP(new LocalFileEntry((*_priv)->name, _parent->getPath(), *_priv));
 }
 
 template <>
@@ -85,17 +113,23 @@ FsDirSource::FileIterator::operator++()
 // Local directory sources.
 class LocalDirEntry : public DirEntry {
   public:
-    LocalDirEntry(const std::string& name, const std::string& path)
-      : DirEntry(name, path) { }
+    LocalDirEntry(const std::string& name, const std::string& path, const DirNodeProxy& node)
+      : DirEntry(name, path), node_(node) { }
   protected:
     virtual void computeAtts();
     virtual void computeExpensiveAtts() { }
+    const DirNodeProxy node_;
 };
 
 void
 LocalDirEntry::computeAtts()
 {
-  assert(false);
+  typedef Atts::value_type value;
+  const struct stat& stat = node_->stat;
+  _atts.insert(value("kind", "dir"));
+  _atts.insert(value("uid", lltoa(stat.st_uid)));
+  _atts.insert(value("gid", lltoa(stat.st_gid)));
+  _atts.insert(value("perm", lltoa(stat.st_mode & ~S_IFMT)));
 }
 
 FsDirSource::DirIterator
@@ -116,7 +150,7 @@ template <>
 FsDirSource::DirIterator::EP
 FsDirSource::DirIterator::operator*() const
 {
-  return EP(new LocalDirEntry((*_priv)->name, _parent->getPath()));
+  return EP(new LocalDirEntry((*_priv)->name, _parent->getPath(), *_priv));
 }
 
 template <>

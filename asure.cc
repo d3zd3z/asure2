@@ -2,6 +2,7 @@
  */
 
 #include <iostream>
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <tr1/memory>
@@ -56,6 +57,16 @@ void walk(string path, string name, int level)
   cout << "Leave " << name << '\n';
 }
 
+void showAtts(const asure::stream::EntryProxy& entry)
+{
+  typedef asure::stream::Entry::Atts::const_iterator iter;
+  const asure::stream::Entry::Atts& atts = entry->getAtts();
+  const iter end = atts.end();
+  for (iter i = atts.begin(); i != end; ++i) {
+    printf("      %-5s: %s\n", i->first.c_str(), i->second.c_str());
+  }
+}
+
 void walk2(shared_ptr<FsDirSource>& here, int level)
 {
   cout << "Enter: " << here->getPath() << "\n";
@@ -63,6 +74,7 @@ void walk2(shared_ptr<FsDirSource>& here, int level)
   const DI diEnd = here->dirEnd();
   for (DI i = here->dirBegin(); i != diEnd; ++i) {
     cout << "  " << (*i)->getName() << '\t' << (*i)->getPath() << '\n';
+    showAtts(*i);
     shared_ptr<FsDirSource> child = (*i)->getDirSource();
     walk2(child, level + 1);
   }
@@ -72,6 +84,7 @@ void walk2(shared_ptr<FsDirSource>& here, int level)
   const FI fiEnd = here->fileEnd();
   for (FI i = here->fileBegin(); i != fiEnd; ++i) {
     cout << "  " << (*i)->getName() << '\t' << (*i)->getPath() << '\n';
+    showAtts(*i);
   }
 
   cout << "leave:\n";
