@@ -8,7 +8,7 @@
 
 namespace asure {
 
-void saveSurefile(std::string surePath, std::string tmpPath, stream::DirEntryProxy root);
+void saveSurefile(std::string baseName, stream::DirEntryProxy root);
 
 }
 

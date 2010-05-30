@@ -1,37 +1,81 @@
 // Writing surefiles
 
 #include <cassert>
+#include <fstream>
 #include <iostream>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+
 #include "surefile.h"
 
 namespace asure {
 
 using std::string;
+namespace ios = boost::iostreams;
+
+namespace extensions {
+const string base = ".dat.gz";
+const string tmp = ".0.gz";
+const string bak = ".bak.gz";
+}
+
+const string surefileMagic = "asure-2.0\n-----\n";
 
 class Emitter {
   public:
-    Emitter(const string& base) : base_(base), out_(open()) { }
+    Emitter(const string& base, ios::filtering_ostream& out) : base_(base), out_(out) { }
+    ~Emitter();
 
     void walk(stream::DirEntryProxy root);
 
-    void putChar(char ch) { out_->put(ch); }
+    void putChar(char ch) { out_.put(ch); }
     void putInt(int val);
     void putString(const string& str) {
       putInt(str.length());
-      out_->write(str.data(), str.length());
+      out_.write(str.data(), str.length());
     }
+
+    // Cleanly close the emitter, rotating log files.
+    void close();
   private:
     const string base_;
-    std::ostream* out_;
-
-    std::ostream* open();
+    ios::filtering_ostream& out_;
     void emitAtts(const stream::Entry& node);
 };
 
-std::ostream*
-Emitter::open()
+void saveSurefile(std::string baseName, stream::DirEntryProxy root)
 {
-  return &std::cout;
+  string tmpName = baseName + extensions::tmp;
+
+  std::ofstream file(tmpName.c_str(), std::ios_base::out | std::ios_base::binary);
+  ios::filtering_ostream out;
+
+  out.push(ios::gzip_compressor());
+  out.push(file);
+
+  out.write(surefileMagic.data(), surefileMagic.length());
+
+  Emitter emit(baseName, out);
+  emit.walk(root);
+  emit.close();
+}
+
+// Upon clean close, close up the stream, and rotate the files.
+void
+Emitter::close()
+{
+  out_.reset();
+  std::rename((base_ + extensions::base).c_str(), (base_ + extensions::bak).c_str());
+  std::rename((base_ + extensions::tmp).c_str(), (base_ + extensions::base).c_str());
+}
+
+Emitter::~Emitter()
+{
+  // If we didn't close properly unlink the temp file.
+  if (!out_.empty()) {
+    out_.reset();
+    unlink((base_ + extensions::tmp).c_str());
+  }
 }
 
 // Written so that '0' is written properly.
@@ -92,12 +136,6 @@ Emitter::walk(stream::DirEntryProxy root)
   }
 
   putChar('D');
-}
-
-void saveSurefile(std::string surePath, std::string tmpPath, stream::DirEntryProxy root)
-{
-  Emitter emit("0sure");
-  emit.walk(root);
 }
 
 }

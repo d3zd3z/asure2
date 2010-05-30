@@ -99,7 +99,7 @@ int main()
     // walk(".", "__root__", 0);
     string root = ".";
     DirEntryProxy here = asure::stream::walkPath(root);
-    asure::saveSurefile("2sure.dat", "2sure.0", here);
+    asure::saveSurefile("2sure", here);
     // walk2(here, 0);
   }
   catch (int ret) {
