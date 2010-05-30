@@ -1,0 +1,3 @@
+Import('env')
+sure = env.Library('sure', Glob('*.cc'))
+Clean(sure, Glob('*.rpo'))

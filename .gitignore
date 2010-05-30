@@ -3,8 +3,7 @@
 *.o
 *.rpo
 
-# The executable.
-asure
+/build/
 
 # scons' database.
 .sconsign.dblite
