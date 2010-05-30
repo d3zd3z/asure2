@@ -55,18 +55,17 @@ lltoa(long long value)
 void
 LocalFileEntry::computeAtts()
 {
-  typedef Atts::value_type value;
   const struct stat& stat = node_->stat;
   if (S_ISREG(stat.st_mode)) {
-    _atts.insert(value("kind", "file"));
-    _atts.insert(value("uid", lltoa(stat.st_uid)));
-    _atts.insert(value("gid", lltoa(stat.st_gid)));
-    _atts.insert(value("mtime", lltoa(stat.st_mtime)));
-    _atts.insert(value("ctime", lltoa(stat.st_ctime)));
-    _atts.insert(value("ino", lltoa(stat.st_ino)));
-    _atts.insert(value("perm", lltoa(stat.st_mode & ~S_IFMT)));
+    _atts["kind"] = "file";
+    _atts["uid"] = lltoa(stat.st_uid);
+    _atts["gid"] = lltoa(stat.st_gid);
+    _atts["mtime"] = lltoa(stat.st_mtime);
+    _atts["ctime"] = lltoa(stat.st_ctime);
+    _atts["ino"] = lltoa(stat.st_ino);
+    _atts["perm"] = lltoa(stat.st_mode & ~S_IFMT);
   } else if (S_ISLNK(stat.st_mode)) {
-    _atts.insert(value("kind", "lnk"));
+    _atts["kind"] = "lnk";
   } else {
     std::cerr << "Unimplemented file type: " << (stat.st_mode & S_IFMT) << '\n';
     assert(false);
@@ -89,15 +88,14 @@ getLink(string path, int length)
 void
 LocalFileEntry::computeExpensiveAtts()
 {
-  typedef Atts::value_type value;
   const struct stat& stat = node_->stat;
   if (S_ISREG(stat.st_mode)) {
     Hash h;
     h.ofFile(_path + "/" + _name);
-    _atts.insert(value("md5", h));
+    _atts["md5"] = h;
   } else if (S_ISLNK(stat.st_mode)) {
     string target = getLink(_path + "/" + _name, 128);
-    _atts.insert(value("targ", target));
+    _atts["targ"] = target;
   }
 }
 
@@ -150,12 +148,11 @@ class LocalDirEntry : public DirEntry {
 void
 LocalDirEntry::computeAtts()
 {
-  typedef Atts::value_type value;
   const struct stat& stat = node_->stat;
-  _atts.insert(value("kind", "dir"));
-  _atts.insert(value("uid", lltoa(stat.st_uid)));
-  _atts.insert(value("gid", lltoa(stat.st_gid)));
-  _atts.insert(value("perm", lltoa(stat.st_mode & ~S_IFMT)));
+  _atts["kind"] = "dir";
+  _atts["uid"] = lltoa(stat.st_uid);
+  _atts["gid"] = lltoa(stat.st_gid);
+  _atts["perm"] = lltoa(stat.st_mode & ~S_IFMT);
 }
 
 FsDirSource::DirIterator
