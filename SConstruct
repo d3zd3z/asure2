@@ -25,8 +25,14 @@ env = Environment(ENV = os.environ, CXXFLAGS = flags,
 Export('env')
 SConscript('lib/SConscript',
 	variant_dir='build/lib', duplicate=0)
-SConscript('main/SConscript',
+main = SConscript('main/SConscript',
 	variant_dir="build/main", duplicate=0)
+test = SConscript('test/SConscript',
+	variant_dir="build/test", duplicate=0)
+
+test_run = env.Command('test', test, "./$SOURCE")
+AlwaysBuild(test_run)
+Default(main, test)
 
 # asure = env.Program('asure', Glob('*.cc'),
 # 	LIBS=['crypto', 'gc', 'boost_iostreams'])

@@ -1,0 +1,13 @@
+Import('env')
+
+flags = env['CXXFLAGS'][:]
+flags += ['-DBOOST_TEST_DYN_LINK']
+
+libs = []
+libs += ['sure']
+libs += ['boost_unit_test_framework']
+
+test = env.Program('test-asure', Glob('*.cc'),
+	CXXFLAGS=flags,
+	LIBS=libs)
+Return('test')
