@@ -111,8 +111,16 @@ void NameIno::getNames(string path, vector<NameIno>& result)
       throw errno;
     string name = string(ent->d_name);
 
-    if (name != "." && name != "..")
-      result.push_back(NameIno(name, ent->d_ino));
+    if (name == "." || name == "..")
+      continue;
+
+    // Skip over integrity files.
+    if (name.find("0sure.") == 0)
+      continue;
+    if (name.find("2sure.") == 0)
+      continue;
+
+    result.push_back(NameIno(name, ent->d_ino));
   }
 }
 
