@@ -23,7 +23,7 @@ class DirNode {
     std::string name;
     struct stat stat;
 
-    DirNode(std::string& n) { name = n; }
+    DirNode(std::string& n) : name(n), stat() { }
     bool operator<(const DirNode& other) const {
       return name < other.name;
     }

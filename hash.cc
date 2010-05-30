@@ -15,9 +15,14 @@ namespace asure {
 class Buffer {
   public:
     static const int bufsize = 4096;
-    unsigned char *data;
-    Buffer() { data = new unsigned char[bufsize]; }
-    ~Buffer() { delete[] data; }
+    unsigned char* get() { return data_; }
+    Buffer() : data_(new unsigned char[bufsize]) { }
+    ~Buffer() { delete[] data_; }
+  private:
+    unsigned char* data_;
+
+    Buffer(const Buffer&);
+    Buffer& operator=(const Buffer&);
 };
 
 void
@@ -36,12 +41,12 @@ asure::Hash::ofFile(std::string path)
     // TODO: Better error handling.
     throw errno;
   while (true) {
-    ssize_t len = read(fd, buffer.data, buffer.bufsize);
+    ssize_t len = read(fd, buffer.get(), buffer.bufsize);
     if (len < 0)
       throw len;
     if (len == 0)
       break;
-    MD5_Update(&ctx, buffer.data, len);
+    MD5_Update(&ctx, buffer.get(), len);
   }
   close(fd);
 

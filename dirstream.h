@@ -21,7 +21,9 @@ class Entry {
     virtual ~Entry() { }
 
     Entry(const std::string& name, const std::string& path)
-      : _name(name), _path(path), _attsComputed(false) { }
+      : _name(name), _path(path),
+      _atts(), _attsComputed(false)
+    { }
     const std::string& getName() const { return _name; }
 
     typedef std::map<std::string, std::string> Atts;

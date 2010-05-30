@@ -23,7 +23,7 @@ class NameIno {
     string name;
     ino_t ino;
 
-    NameIno(string& n, ino_t i) { name = n; ino = i; }
+    NameIno(string& n, ino_t i) : name(n), ino(i) { }
     bool operator<(const NameIno& other) const {
       return ino < other.ino;
     }
@@ -34,6 +34,7 @@ class NameIno {
 };
 
 Directory::Directory(string path)
+  : dirs_(), nondirs_()
 {
   vector<NameIno> names;
   NameIno::getNames(path, names);
@@ -80,7 +81,7 @@ DirNode::getDir(std::string& n)
 // Close an open directory.
 class DirCloser {
   public:
-    DirCloser(DIR* p) { dir = p; }
+    DirCloser(DIR* p) : dir(p) { }
     ~DirCloser() {
       int r = closedir(dir);
       if (r != 0)
@@ -90,6 +91,10 @@ class DirCloser {
 
   private:
     DIR* dir;
+
+    // Eliminate assignment and copy constructors.
+    DirCloser(DirCloser& other);
+    void operator=(DirCloser const& other);
 };
 
 
