@@ -5,6 +5,7 @@ flags += ['-DBOOST_TEST_DYN_LINK']
 
 libs = []
 libs += ['sure']
+libs += ['uuid']
 libs += ['boost_unit_test_framework']
 
 test = env.Program('test-asure', Glob('*.cc'),
