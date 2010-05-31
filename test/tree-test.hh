@@ -25,7 +25,7 @@ class TestEntry : public Entry {
 typedef std::tr1::shared_ptr<TestEntry> TestEntryProxy;
 
 struct TestInfo;
-typedef DirEntry<TestInfo> TestDirEntry;
+typedef OldDirEntry<TestInfo> TestDirEntry;
 typedef std::tr1::shared_ptr<TestDirEntry> TestDirEntryProxy;
 
 struct TestInfo {
@@ -34,7 +34,7 @@ struct TestInfo {
 };
 
 template <>
-class DirEntry<TestInfo> : public TestEntry {
+class OldDirEntry<TestInfo> : public TestEntry {
  public:
   typedef TestInfo::dir_iterator dir_iterator;
   dir_iterator dirBegin() { return subdirs_.begin(); }
@@ -44,9 +44,9 @@ class DirEntry<TestInfo> : public TestEntry {
   file_iterator fileBegin() { return subfiles_.begin(); }
   file_iterator fileEnd() { return subfiles_.end(); }
 
-  DirEntry(const std::string& name, const std::string& path, const Atts& atts,
-           const std::vector<TestDirEntryProxy>& subdirs,
-           const std::vector<TestEntryProxy>& subfiles) :
+  OldDirEntry(const std::string& name, const std::string& path, const Atts& atts,
+              const std::vector<TestDirEntryProxy>& subdirs,
+              const std::vector<TestEntryProxy>& subfiles) :
       TestEntry(name, path, atts),
       subdirs_(subdirs),
       subfiles_(subfiles)

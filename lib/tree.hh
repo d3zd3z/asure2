@@ -67,7 +67,7 @@ typedef std::tr1::shared_ptr<Entry> EntryProxy;
 // 1.  The iterators may be used once.
 // 2.  The dir iterators must be used before the file iterators.
 template <class S>
-class DirEntry : public Entry {
+class OldDirEntry : public Entry {
  public:
   // Iterate over the subdirectories of this Entry.
   typedef typename S::dir_iterator dir_iterator;
@@ -79,7 +79,7 @@ class DirEntry : public Entry {
   file_iterator fileEnd();
 
  private:
-  DirEntry() { }
+  OldDirEntry() { }
 };
 
 // Implementation notes:

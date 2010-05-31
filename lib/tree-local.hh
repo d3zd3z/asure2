@@ -11,7 +11,7 @@ namespace asure {
 namespace tree {
 
 struct LocalInfo;
-typedef DirEntry<LocalInfo> LocalDirEntry;
+typedef OldDirEntry<LocalInfo> LocalDirEntry;
 typedef std::tr1::shared_ptr<LocalDirEntry> LocalDirEntryProxy;
 
 struct LocalInfo {
@@ -21,7 +21,7 @@ struct LocalInfo {
 
 extern void x(char const* msg);
 template <>
-class DirEntry<LocalInfo> : public Entry {
+class OldDirEntry<LocalInfo> : public Entry {
  public:
   typedef LocalInfo::dir_iterator dir_iterator;
   dir_iterator dirBegin() { scanDirectory(); return dirs_.begin(); }
@@ -31,9 +31,9 @@ class DirEntry<LocalInfo> : public Entry {
   file_iterator fileBegin() { scanDirectory(); return files_.begin(); }
   file_iterator fileEnd() { scanDirectory(); return files_.end(); }
 
-  DirEntry(std::string const& name, std::string const& path,
-           struct stat& stat);
-  virtual ~DirEntry() { }
+  OldDirEntry(std::string const& name, std::string const& path,
+              struct stat& stat);
+  virtual ~OldDirEntry() { }
 
   static LocalDirEntryProxy readDir(std::string const& path);
  protected:

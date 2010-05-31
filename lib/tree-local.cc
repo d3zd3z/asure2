@@ -30,8 +30,8 @@ static std::string stringify(N value)
   return ss.str();
 }
 
-LocalDirEntry::DirEntry(std::string const& name, std::string const& path,
-                        struct stat& stat) :
+LocalDirEntry::OldDirEntry(std::string const& name, std::string const& path,
+                           struct stat& stat) :
     Entry(name, path),
     computed_(false),
     files_(), dirs_()
