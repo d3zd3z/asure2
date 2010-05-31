@@ -26,7 +26,7 @@ class Buffer {
 };
 
 void
-asure::Hash::ofFile(std::string path)
+Hash::ofFile(std::string path)
 {
   MD5_CTX ctx;
   MD5_Init(&ctx);
@@ -61,7 +61,7 @@ static inline char itoc(unsigned char val)
     return val - 10 + 'a';
 }
 
-asure::Hash::operator std::string()
+Hash::operator std::string()
 {
   std::string buf(32, 'X');
   for (int i = 0; i < 16; i++) {
