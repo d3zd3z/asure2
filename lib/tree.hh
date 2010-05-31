@@ -61,7 +61,7 @@ typedef std::tr1::shared_ptr<Entry> EntryProxy;
 
 // A single-pass polymorphic iterator over elements of type E.
 // Note that these are reference iterators, and have fairly different semantics
-// than the STL value iterators.  Most notable is that there is a 'isDone()'
+// than the STL value iterators.  Most notable is that there is a 'empty()'
 // method to query whether we are finished, rather than having multiple
 // iterators.
 template <class E>
@@ -69,7 +69,7 @@ class SingleIterator {
  public:
   virtual ~SingleIterator() = 0;
 
-  virtual bool isDone() const = 0;
+  virtual bool empty() const = 0;
   virtual SingleIterator<E>& operator++() = 0;
   virtual E const operator*() const = 0;
 };
@@ -85,7 +85,7 @@ class ListIterator : public SingleIterator<E> {
  public:
   ListIterator(std::list<E>& list) : list_(list) { }
   ~ListIterator() { }
-  bool isDone() const { return list_.empty(); }
+  bool empty() const { return list_.empty(); }
   E const operator*() const { return list_.front(); }
   ListIterator& operator++() {
     list_.pop_front();

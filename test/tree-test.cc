@@ -44,7 +44,7 @@ template <class Iter>
 static void showFiles(std::ostream& out, char const* name, Iter& iter)
 {
   out << " (" << name;
-  for (; !iter.isDone(); ++iter) {
+  for (; !iter.empty(); ++iter) {
     printFileSexp(*iter, out);
   }
   out << ')';
@@ -69,7 +69,7 @@ template<class Iter>
 static void showSub(std::ostream& out, char const* name, Iter& iter)
 {
   out << " (" << name;
-  for (; !iter.isDone(); ++iter) {
+  for (; !iter.empty(); ++iter) {
     printSexp(*iter, out);
   }
   out << ')';
