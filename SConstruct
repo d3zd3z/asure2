@@ -2,7 +2,8 @@ import os
 flags = ['-g', '-O2']
 
 # Make warnings fatal, and warn about a lot.
-flags += ['-Wall', '-Werror', '-Wextra']
+flags += ['-Wall', '-Wextra']
+flags += ['-Werror']
 
 # However, unused parameters are quite common in OO.
 flags += ['-Wno-unused']
