@@ -24,40 +24,30 @@ class TestEntry : public Entry {
 };
 typedef std::tr1::shared_ptr<TestEntry> TestEntryProxy;
 
-struct TestInfo;
-typedef OldDirEntry<TestInfo> TestDirEntry;
+class TestDirEntry;
 typedef std::tr1::shared_ptr<TestDirEntry> TestDirEntryProxy;
-
-struct TestInfo {
-  typedef std::vector<TestDirEntryProxy>::const_iterator dir_iterator;
-  typedef std::vector<TestEntryProxy>::const_iterator file_iterator;
-};
-
-template <>
-class OldDirEntry<TestInfo> : public TestEntry {
+class TestDirEntry : public DirEntry {
  public:
-  typedef TestInfo::dir_iterator dir_iterator;
-  dir_iterator dirBegin() { return subdirs_.begin(); }
-  dir_iterator dirEnd() { return subdirs_.end(); }
-
-  typedef TestInfo::file_iterator file_iterator;
-  file_iterator fileBegin() { return subfiles_.begin(); }
-  file_iterator fileEnd() { return subfiles_.end(); }
-
-  OldDirEntry(const std::string& name, const std::string& path, const Atts& atts,
-              const std::vector<TestDirEntryProxy>& subdirs,
-              const std::vector<TestEntryProxy>& subfiles) :
-      TestEntry(name, path, atts),
+  TestDirEntry(std::string const& name, std::string const& path, Atts const& atts,
+               std::vector<TestDirEntryProxy>& subdirs,
+               std::vector<TestEntryProxy>& subfiles) :
+      DirEntry(name, path),
       subdirs_(subdirs),
       subfiles_(subfiles)
   {
     atts_ = atts;
   }
+  virtual ~TestDirEntry() { }
+
+  virtual dir_iterator dirIter();
+  virtual file_iterator fileIter();
+
  protected:
-  const std::vector<TestDirEntryProxy> subdirs_;
-  const std::vector<TestEntryProxy> subfiles_;
-  void computeAtts() { }
-  void computeExpensiveAtts() { }
+  std::vector<TestDirEntryProxy> const subdirs_;
+  std::vector<TestEntryProxy> const subfiles_;
+
+  virtual void computeAtts() { }
+  virtual void computeExpensiveAtts() { }
 };
 
 }

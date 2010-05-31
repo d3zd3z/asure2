@@ -15,6 +15,22 @@ namespace asure {
 
 namespace tree {
 
+//////////////////////////////////////////////////////////////////////
+
+TestDirEntry::dir_iterator TestDirEntry::dirIter()
+{
+  typedef WrapIterator<DirEntryProxy, std::vector<TestDirEntryProxy> > DirIter;
+  return TestDirEntry::dir_iterator(new DirIter(subdirs_));
+}
+
+TestDirEntry::file_iterator TestDirEntry::fileIter()
+{
+  typedef WrapIterator<EntryProxy, std::vector<TestEntryProxy> > FileIter;
+  return TestDirEntry::file_iterator(new FileIter(subfiles_));
+}
+
+//////////////////////////////////////////////////////////////////////
+
 static void printAtts(EntryProxy self, std::ostream& out)
 {
   typedef Entry::Atts::const_iterator iter;
@@ -38,38 +54,37 @@ static void printFileSexp(EntryProxy self, std::ostream& out)
   out << ')';
 }
 
-template <class iter>
-static void showFiles(std::ostream& out, char const* name, iter begin, iter end)
+template <class Iter>
+static void showFiles(std::ostream& out, char const* name, Iter iter)
 {
   out << " (" << name;
-  for (iter i = begin; i != end; ++i) {
-    printFileSexp(*i, out);
+  for (; !iter->isDone(); ++(*iter)) {
+    printFileSexp(**iter, out);
   }
   out << ')';
 }
 
-template <class iter>
-static void showSub(std::ostream& out, char const* name, iter begin, iter end);
+template <class Iter>
+static void showSub(std::ostream& out, char const* name, Iter iter);
 
-template <class D>
-static void printSexp(D self, std::ostream& out)
+static void printSexp(DirEntryProxy self, std::ostream& out)
 {
   out << "(dir ";
   out << self->getName();
   printAtts(self, out);
 
-  showSub(out, "subdirs ", self->dirBegin(), self->dirEnd());
-  showFiles(out, "files ", self->fileBegin(), self->fileEnd());
+  showSub(out, "subdirs ", self->dirIter());
+  showFiles(out, "files ", self->fileIter());
 
   out << ')';
 }
 
-template<class iter>
-static void showSub(std::ostream& out, char const* name, iter begin, iter end)
+template<class Iter>
+static void showSub(std::ostream& out, char const* name, Iter iter)
 {
   out << " (" << name;
-  for (iter i = begin; i != end; ++i) {
-    printSexp(*i, out);
+  for (; !iter->isDone(); ++(*iter)) {
+    printSexp(**iter, out);
   }
   out << ')';
 }
@@ -114,6 +129,7 @@ BOOST_AUTO_TEST_CASE(simple)
 
 BOOST_AUTO_TEST_CASE(local)
 {
+#if 0
   // This test depends on the contents of /tmp, so don't normally run it.
   return;
   // LocalDirEntry root("__root__", "/tmp", rootStat);
@@ -122,6 +138,7 @@ BOOST_AUTO_TEST_CASE(local)
   std::stringstream ss;
   printSexp(root, ss);
   std::cout << ss.str() << '\n';
+#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END();
