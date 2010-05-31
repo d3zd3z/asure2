@@ -19,14 +19,14 @@ namespace tree {
 
 TestDirEntry::dir_iterator TestDirEntry::dirIter()
 {
-  typedef WrapIterator<DirEntryProxy, std::vector<TestDirEntryProxy>, TestDirEntryProxy> DirIter;
-  return TestDirEntry::dir_iterator(new DirIter(subdirs_, TestDirEntryProxy()));
+  typedef ListIterator<DirEntryProxy> DirIter;
+  return TestDirEntry::dir_iterator(new DirIter(subdirs_));
 }
 
 TestDirEntry::file_iterator TestDirEntry::fileIter()
 {
-  typedef WrapIterator<EntryProxy, std::vector<TestEntryProxy>, TestEntryProxy> FileIter;
-  return TestDirEntry::file_iterator(new FileIter(subfiles_, TestEntryProxy()));
+  typedef ListIterator<EntryProxy> FileIter;
+  return TestDirEntry::file_iterator(new FileIter(subfiles_));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -107,12 +107,12 @@ BOOST_AUTO_TEST_CASE(simple)
   Atts m2;
   m2["kind"] = "dir";
 
-  std::vector<TestDirEntryProxy> subdirs;
-  std::vector<TestEntryProxy> subfiles;
+  std::list<DirEntryProxy> subdirs;
+  std::list<EntryProxy> subfiles;
 
-  subfiles.push_back(TestEntryProxy(new TestEntry("file1", "dir1/file1", m1)));
+  subfiles.push_back(EntryProxy(new TestEntry("file1", "dir1/file1", m1)));
 
-  TestDirEntryProxy dir1(new TestDirEntry("dir1", "dir1", m2, subdirs, subfiles));
+  DirEntryProxy dir1(new TestDirEntry("dir1", "dir1", m2, subdirs, subfiles));
 
   subfiles.clear();
   subdirs.clear();

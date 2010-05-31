@@ -3,6 +3,7 @@
 #ifndef __TREE_H__
 #define __TREE_H__
 
+#include <list>
 #include <map>
 #include <string>
 #include <tr1/memory>
@@ -76,31 +77,22 @@ class SingleIterator {
 template <class E>
 SingleIterator<E>::~SingleIterator() { }
 
-// Many types of iterators are just wrappers around a regular iterator.
-// Uses begin(), end(), and the const_iterator types within T, and returns an
-// iterator over E.
-template <class E, class T, class ZT>
-class WrapIterator : public SingleIterator<E> {
+// Some iterators traverse by returning the elements of a list.  This is
+// convenient, since the items are removed from the list as the iteration
+// proceeds.
+template <class E>
+class ListIterator : public SingleIterator<E> {
  public:
-  WrapIterator(T& container, ZT zero) :
-      iter_(container.begin()),
-      end_(container.end()),
-      zero_(zero)
-  { }
-
-  ~WrapIterator() { }
-  bool isDone() const { return iter_ == end_; }
-  WrapIterator& operator++() {
-    *iter_ = zero_;
-    ++iter_; return *this;
+  ListIterator(std::list<E>& list) : list_(list) { }
+  ~ListIterator() { }
+  bool isDone() const { return list_.empty(); }
+  E const operator*() const { return list_.front(); }
+  ListIterator& operator++() {
+    list_.pop_front();
+    return *this;
   }
-  E const operator*() const { return *iter_; }
-
  private:
-  typedef typename T::iterator Iter;
-  Iter iter_;
-  Iter end_;
-  ZT zero_;
+  std::list<E> list_;
 };
 
 // Some entries also contain other entries (directories).  These can be iterated

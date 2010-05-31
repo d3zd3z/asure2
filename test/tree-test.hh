@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <tr1/memory>
-#include <vector>
+#include <list>
 #include "tree.hh"
 
 namespace asure {
@@ -29,8 +29,8 @@ typedef std::tr1::shared_ptr<TestDirEntry> TestDirEntryProxy;
 class TestDirEntry : public DirEntry {
  public:
   TestDirEntry(std::string const& name, std::string const& path, Atts const& atts,
-               std::vector<TestDirEntryProxy>& subdirs,
-               std::vector<TestEntryProxy>& subfiles) :
+               std::list<DirEntryProxy>& subdirs,
+               std::list<EntryProxy>& subfiles) :
       DirEntry(name, path),
       subdirs_(subdirs),
       subfiles_(subfiles)
@@ -43,8 +43,8 @@ class TestDirEntry : public DirEntry {
   virtual file_iterator fileIter();
 
  protected:
-  std::vector<TestDirEntryProxy> subdirs_;
-  std::vector<TestEntryProxy> subfiles_;
+  std::list<DirEntryProxy> subdirs_;
+  std::list<EntryProxy> subfiles_;
 
   virtual void computeAtts() { }
   virtual void computeExpensiveAtts() { }
