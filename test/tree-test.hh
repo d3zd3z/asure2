@@ -32,19 +32,19 @@ class TestDirEntry : public DirEntry {
                std::list<DirEntryProxy>& subdirs,
                std::list<EntryProxy>& subfiles) :
       DirEntry(name, path),
-      subdirs_(subdirs),
-      subfiles_(subfiles)
+      subdirs_(ListIterator<DirEntryProxy>(subdirs)),
+      subfiles_(ListIterator<EntryProxy>(subfiles))
   {
     atts_ = atts;
   }
   virtual ~TestDirEntry() { }
 
-  virtual dir_iterator dirIter();
-  virtual file_iterator fileIter();
+  virtual dir_iterator& dirIter() { return subdirs_; }
+  virtual file_iterator& fileIter() { return subfiles_; }
 
  protected:
-  std::list<DirEntryProxy> subdirs_;
-  std::list<EntryProxy> subfiles_;
+  ListIterator<DirEntryProxy> subdirs_;
+  ListIterator<EntryProxy> subfiles_;
 
   virtual void computeAtts() { }
   virtual void computeExpensiveAtts() { }

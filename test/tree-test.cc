@@ -17,20 +17,6 @@ namespace tree {
 
 //////////////////////////////////////////////////////////////////////
 
-TestDirEntry::dir_iterator TestDirEntry::dirIter()
-{
-  typedef ListIterator<DirEntryProxy> DirIter;
-  return TestDirEntry::dir_iterator(new DirIter(subdirs_));
-}
-
-TestDirEntry::file_iterator TestDirEntry::fileIter()
-{
-  typedef ListIterator<EntryProxy> FileIter;
-  return TestDirEntry::file_iterator(new FileIter(subfiles_));
-}
-
-//////////////////////////////////////////////////////////////////////
-
 static void printAtts(EntryProxy self, std::ostream& out)
 {
   typedef Entry::Atts::const_iterator iter;
@@ -55,17 +41,17 @@ static void printFileSexp(EntryProxy self, std::ostream& out)
 }
 
 template <class Iter>
-static void showFiles(std::ostream& out, char const* name, Iter iter)
+static void showFiles(std::ostream& out, char const* name, Iter& iter)
 {
   out << " (" << name;
-  for (; !iter->isDone(); ++(*iter)) {
-    printFileSexp(**iter, out);
+  for (; !iter.isDone(); ++iter) {
+    printFileSexp(*iter, out);
   }
   out << ')';
 }
 
 template <class Iter>
-static void showSub(std::ostream& out, char const* name, Iter iter);
+static void showSub(std::ostream& out, char const* name, Iter& iter);
 
 static void printSexp(DirEntryProxy self, std::ostream& out)
 {
@@ -80,11 +66,11 @@ static void printSexp(DirEntryProxy self, std::ostream& out)
 }
 
 template<class Iter>
-static void showSub(std::ostream& out, char const* name, Iter iter)
+static void showSub(std::ostream& out, char const* name, Iter& iter)
 {
   out << " (" << name;
-  for (; !iter->isDone(); ++(*iter)) {
-    printSexp(**iter, out);
+  for (; !iter.isDone(); ++iter) {
+    printSexp(*iter, out);
   }
   out << ')';
 }

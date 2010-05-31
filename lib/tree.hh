@@ -107,11 +107,11 @@ class DirEntry : public Entry {
       Entry(name, path) { }
   ~DirEntry() = 0;
 
-  typedef std::tr1::shared_ptr<SingleIterator<DirEntryProxy> > dir_iterator;
-  virtual dir_iterator dirIter() = 0;
+  typedef SingleIterator<DirEntryProxy> dir_iterator;
+  virtual dir_iterator& dirIter() = 0;
 
-  typedef std::tr1::shared_ptr<SingleIterator<EntryProxy> > file_iterator;
-  virtual file_iterator fileIter() = 0;
+  typedef SingleIterator<EntryProxy> file_iterator;
+  virtual file_iterator& fileIter() = 0;
 };
 
 // Some entries also contain other entries (directories).  These can
