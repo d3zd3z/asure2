@@ -18,11 +18,9 @@ class TestEntry : public Entry {
   {
     atts_ = atts;
   }
-  virtual void printSexp(std::ostream& out);
  protected:
   void computeAtts() { }
   void computeExpensiveAtts() { }
-  void printAtts(std::ostream& out);
 };
 typedef std::tr1::shared_ptr<TestEntry> TestEntryProxy;
 
@@ -55,8 +53,6 @@ class DirEntry<TestInfo> : public TestEntry {
   {
     atts_ = atts;
   }
-
-  void printSexp(std::ostream& out);
  protected:
   const std::vector<TestDirEntryProxy> subdirs_;
   const std::vector<TestEntryProxy> subfiles_;

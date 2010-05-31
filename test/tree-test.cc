@@ -1,18 +1,27 @@
 // Tree testing.
 
+extern "C" {
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+}
+
 #include <iostream>
 #include <boost/test/unit_test.hpp>
 #include "tree-test.h"
+#include "tree-local.h"
 
 namespace asure {
 
 namespace tree {
 
-void TestEntry::printAtts(std::ostream& out)
+static void printAtts(Entry& self, std::ostream& out)
 {
-  typedef Atts::const_iterator iter;
-  iter end = atts_.end();
-  for (iter i = atts_.begin(); i != end; ++i) {
+  typedef Entry::Atts::const_iterator iter;
+  const Entry::Atts& atts = self.getAtts();
+
+  iter end = atts.end();
+  for (iter i = atts.begin(); i != end; ++i) {
     out << " (:";
     out << i->first;
     out << ' ';
@@ -21,11 +30,37 @@ void TestEntry::printAtts(std::ostream& out)
   }
 }
 
-void TestEntry::printSexp(std::ostream& out)
+static void printFileSexp(Entry& self, std::ostream& out)
 {
   out << "(file ";
-  out << getName();
-  printAtts(out);
+  out << self.getName();
+  printAtts(self, out);
+  out << ')';
+}
+
+template <class iter>
+static void showFiles(std::ostream& out, char const* name, iter begin, iter end)
+{
+  out << " (" << name;
+  for (iter i = begin; i != end; ++i) {
+    printFileSexp(**i, out);
+  }
+  out << ')';
+}
+
+template <class iter>
+static void showSub(std::ostream& out, char const* name, iter begin, iter end);
+
+template <class D>
+static void printSexp(D& self, std::ostream& out)
+{
+  out << "(dir ";
+  out << self.getName();
+  printAtts(self, out);
+
+  showSub(out, "subdirs ", self.dirBegin(), self.dirEnd());
+  showFiles(out, "files ", self.fileBegin(), self.fileEnd());
+
   out << ')';
 }
 
@@ -34,21 +69,8 @@ static void showSub(std::ostream& out, char const* name, iter begin, iter end)
 {
   out << " (" << name;
   for (iter i = begin; i != end; ++i) {
-    (*i)->printSexp(out);
+    printSexp(**i, out);
   }
-  out << ')';
-
-}
-
-void TestDirEntry::printSexp(std::ostream& out)
-{
-  out << "(dir ";
-  out << getName();
-  printAtts(out);
-
-  showSub(out, "subdirs ", dirBegin(), dirEnd());
-  showSub(out, "files ", fileBegin(), fileEnd());
-
   out << ')';
 }
 
@@ -83,7 +105,7 @@ BOOST_AUTO_TEST_CASE(simple)
   TestDirEntryProxy root(new TestDirEntry("__root__", "", m2, subdirs, subfiles));
 
   std::stringstream ss;
-  root->printSexp(ss);
+  printSexp(*root, ss);
   BOOST_CHECK_EQUAL(ss.str(),
                     "(dir __root__ (:kind dir) (subdirs (dir dir1 (:kind dir) (subdirs ) "
                     "(files (file file1 (:kind reg))))) "
