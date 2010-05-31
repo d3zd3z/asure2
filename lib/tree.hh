@@ -70,7 +70,7 @@ class SingleIterator {
 
   virtual bool isDone() const = 0;
   virtual SingleIterator<E>& operator++() = 0;
-  virtual E operator*() const = 0;
+  virtual E const operator*() const = 0;
 };
 
 template <class E>
@@ -79,22 +79,28 @@ SingleIterator<E>::~SingleIterator() { }
 // Many types of iterators are just wrappers around a regular iterator.
 // Uses begin(), end(), and the const_iterator types within T, and returns an
 // iterator over E.
-template <class E, class T>
+template <class E, class T, class ZT>
 class WrapIterator : public SingleIterator<E> {
  public:
-  WrapIterator(T const& container) :
+  WrapIterator(T& container, ZT zero) :
       iter_(container.begin()),
-      end_(container.end()) { }
+      end_(container.end()),
+      zero_(zero)
+  { }
 
   ~WrapIterator() { }
   bool isDone() const { return iter_ == end_; }
-  WrapIterator& operator++() { ++iter_; return *this; }
-  E operator*() const { return *iter_; }
+  WrapIterator& operator++() {
+    *iter_ = zero_;
+    ++iter_; return *this;
+  }
+  E const operator*() const { return *iter_; }
 
  private:
-  typedef typename T::const_iterator Iter;
+  typedef typename T::iterator Iter;
   Iter iter_;
   Iter end_;
+  ZT zero_;
 };
 
 // Some entries also contain other entries (directories).  These can be iterated

@@ -19,14 +19,14 @@ namespace tree {
 
 TestDirEntry::dir_iterator TestDirEntry::dirIter()
 {
-  typedef WrapIterator<DirEntryProxy, std::vector<TestDirEntryProxy> > DirIter;
-  return TestDirEntry::dir_iterator(new DirIter(subdirs_));
+  typedef WrapIterator<DirEntryProxy, std::vector<TestDirEntryProxy>, TestDirEntryProxy> DirIter;
+  return TestDirEntry::dir_iterator(new DirIter(subdirs_, TestDirEntryProxy()));
 }
 
 TestDirEntry::file_iterator TestDirEntry::fileIter()
 {
-  typedef WrapIterator<EntryProxy, std::vector<TestEntryProxy> > FileIter;
-  return TestDirEntry::file_iterator(new FileIter(subfiles_));
+  typedef WrapIterator<EntryProxy, std::vector<TestEntryProxy>, TestEntryProxy> FileIter;
+  return TestDirEntry::file_iterator(new FileIter(subfiles_, TestEntryProxy()));
 }
 
 //////////////////////////////////////////////////////////////////////

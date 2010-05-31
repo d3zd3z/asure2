@@ -43,8 +43,8 @@ class TestDirEntry : public DirEntry {
   virtual file_iterator fileIter();
 
  protected:
-  std::vector<TestDirEntryProxy> const subdirs_;
-  std::vector<TestEntryProxy> const subfiles_;
+  std::vector<TestDirEntryProxy> subdirs_;
+  std::vector<TestEntryProxy> subfiles_;
 
   virtual void computeAtts() { }
   virtual void computeExpensiveAtts() { }
