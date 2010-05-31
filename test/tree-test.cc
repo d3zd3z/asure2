@@ -8,8 +8,8 @@ extern "C" {
 
 #include <iostream>
 #include <boost/test/unit_test.hpp>
-#include "tree-test.h"
-#include "tree-local.h"
+#include "tree-test.hh"
+#include "tree-local.hh"
 
 namespace asure {
 

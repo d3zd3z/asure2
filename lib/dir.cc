@@ -11,7 +11,7 @@ extern "C" {
 #include <vector>
 #include <algorithm>
 
-#include "dir.h"
+#include "dir.hh"
 
 using std::string;
 using std::vector;

@@ -4,7 +4,7 @@
 #define __SUREFILE_H__
 
 #include <string>
-#include "dirstream.h"
+#include "dirstream.hh"
 
 namespace asure {
 

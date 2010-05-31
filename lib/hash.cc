@@ -8,7 +8,7 @@ extern "C" {
 }
 
 #include <memory>
-#include "hash.h"
+#include "hash.hh"
 
 namespace asure {
 

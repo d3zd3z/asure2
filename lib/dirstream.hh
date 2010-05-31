@@ -11,7 +11,7 @@
 #include <map>
 #include <tr1/memory>
 
-#include "dir.h"
+#include "dir.hh"
 
 namespace asure {
 namespace stream {

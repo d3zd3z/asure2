@@ -6,7 +6,7 @@
 #include <iostream>
 #include <tr1/memory>
 #include <vector>
-#include "tree.h"
+#include "tree.hh"
 
 namespace asure {
 namespace tree {

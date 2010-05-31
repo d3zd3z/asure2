@@ -5,9 +5,9 @@
 #include <sstream>
 #include <iostream>
 
-#include "dir.h"
-#include "dirstream.h"
-#include "hash.h"
+#include "dir.hh"
+#include "dirstream.hh"
+#include "hash.hh"
 
 using std::string;
 using std::tr1::shared_ptr;

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <string>
 
-#include "dirstream.h"
-#include "surefile.h"
+#include "dirstream.hh"
+#include "surefile.hh"
 
 using std::string;
 using std::cout;

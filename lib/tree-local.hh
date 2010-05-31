@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <string>
-#include "tree.h"
+#include "tree.hh"
 
 namespace asure {
 namespace tree {

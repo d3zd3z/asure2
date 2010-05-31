@@ -11,7 +11,7 @@ extern "C" {
 #include <cstdlib>
 #include <sstream>
 #include "uuid/uuid.h"
-#include "tmpdir.h"
+#include "tmpdir.hh"
 
 namespace asure {
 namespace test {

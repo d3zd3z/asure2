@@ -6,7 +6,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 
-#include "surefile.h"
+#include "surefile.hh"
 
 namespace asure {
 

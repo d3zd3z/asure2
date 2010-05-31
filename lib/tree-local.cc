@@ -16,8 +16,8 @@ extern "C" {
 #include <string>
 #include <vector>
 
-#include "hash.h"
-#include "tree-local.h"
+#include "hash.hh"
+#include "tree-local.hh"
 
 namespace asure {
 namespace tree {
