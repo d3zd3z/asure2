@@ -1,4 +1,4 @@
 Import('env')
 asure = env.Program('asure', Glob('*.cc'),
-	LIBS=['sure', 'crypto', 'gc', 'boost_iostreams'])
+	LIBS=['sure', 'crypto', 'boost_iostreams'])
 Return('asure')

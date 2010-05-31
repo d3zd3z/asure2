@@ -60,14 +60,14 @@ typedef std::tr1::shared_ptr<Entry> EntryProxy;
 
 // This trait marks anything that is a DirEntry, since the real DirEntries do
 // not form any kind of heirarchy.
-class DirEntryTrait { };
+// class DirEntryTrait { };
 
 // Some entries also contain other entries (directories).  These can
 // be iterated over in a limited manner.  The limitations are:
 // 1.  The iterators may be used once.
 // 2.  The dir iterators must be used before the file iterators.
 template <class S>
-class DirEntry : public Entry, public DirEntryTrait {
+class DirEntry : public Entry {
  public:
   // Iterate over the subdirectories of this Entry.
   typedef typename S::dir_iterator dir_iterator;
