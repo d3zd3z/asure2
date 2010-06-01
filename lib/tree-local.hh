@@ -3,47 +3,44 @@
 #ifndef __TREE_LOCAL_H__
 #define __TREE_LOCAL_H__
 
-#include <vector>
+#include <list>
 #include <string>
 #include "tree.hh"
 
 namespace asure {
 namespace tree {
 
-struct LocalInfo;
-typedef OldDirEntry<LocalInfo> LocalDirEntry;
-typedef std::tr1::shared_ptr<LocalDirEntry> LocalDirEntryProxy;
+// A ListIterator the provides some assistance in building the list, namely a
+// backdoor to access the list.
+template <class E>
+class ListIteratorBuilder : public ListIterator<E> {
+ public:
+  ListIteratorBuilder() : ListIterator<E>(std::list<E>()) { }
+  ~ListIteratorBuilder() { }
 
-struct LocalInfo {
-  typedef std::vector<LocalDirEntryProxy>::iterator dir_iterator;
-  typedef std::vector<EntryProxy>::iterator file_iterator;
+  std::list<E>& getList() { return ListIterator<E>::list_; }
 };
 
-extern void x(char const* msg);
-template <>
-class OldDirEntry<LocalInfo> : public Entry {
+class LocalDirEntry;
+typedef std::tr1::shared_ptr<LocalDirEntry> LocalDirEntryProxy;
+class LocalDirEntry : public DirEntry {
  public:
-  typedef LocalInfo::dir_iterator dir_iterator;
-  dir_iterator dirBegin() { scanDirectory(); return dirs_.begin(); }
-  dir_iterator dirEnd() { scanDirectory(); return dirs_.end(); }
+  LocalDirEntry(std::string const& name, std::string const& path,
+                struct stat& stat);
+  virtual ~LocalDirEntry() { }
 
-  typedef LocalInfo::file_iterator file_iterator;
-  file_iterator fileBegin() { scanDirectory(); return files_.begin(); }
-  file_iterator fileEnd() { scanDirectory(); return files_.end(); }
+  virtual dir_iterator& dirIter() { scanDirectory(); return dirs_; }
+  virtual file_iterator& fileIter() { scanDirectory(); return files_; }
 
-  OldDirEntry(std::string const& name, std::string const& path,
-              struct stat& stat);
-  virtual ~OldDirEntry() { }
-
-  static LocalDirEntryProxy readDir(std::string const& path);
+  static DirEntryProxy readDir(std::string const& path);
  protected:
   void computeAtts() { }
   void computeExpensiveAtts() { }
 
  private:
   bool computed_;
-  std::vector<EntryProxy> files_;
-  std::vector<LocalDirEntryProxy> dirs_;
+  ListIteratorBuilder<EntryProxy> files_;
+  ListIteratorBuilder<DirEntryProxy> dirs_;
 
   void scanDirectory();
 };

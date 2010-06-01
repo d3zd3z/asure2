@@ -83,7 +83,7 @@ SingleIterator<E>::~SingleIterator() { }
 template <class E>
 class ListIterator : public SingleIterator<E> {
  public:
-  ListIterator(std::list<E>& list) : list_(list) { }
+  ListIterator(std::list<E> const& list) : list_(list) { }
   ~ListIterator() { }
   bool empty() const { return list_.empty(); }
   E const operator*() const { return list_.front(); }
@@ -91,7 +91,7 @@ class ListIterator : public SingleIterator<E> {
     list_.pop_front();
     return *this;
   }
- private:
+ protected:
   std::list<E> list_;
 };
 
@@ -112,26 +112,6 @@ class DirEntry : public Entry {
 
   typedef SingleIterator<EntryProxy> file_iterator;
   virtual file_iterator& fileIter() = 0;
-};
-
-// Some entries also contain other entries (directories).  These can
-// be iterated over in a limited manner.  The limitations are:
-// 1.  The iterators may be used once.
-// 2.  The dir iterators must be used before the file iterators.
-template <class S>
-class OldDirEntry : public Entry {
- public:
-  // Iterate over the subdirectories of this Entry.
-  typedef typename S::dir_iterator dir_iterator;
-  dir_iterator dirBegin();
-  dir_iterator dirEnd();
-
-  typedef typename S::file_iterator file_iterator;
-  file_iterator fileBegin();
-  file_iterator fileEnd();
-
- private:
-  OldDirEntry() { }
 };
 
 // Implementation notes:

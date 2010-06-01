@@ -115,16 +115,14 @@ BOOST_AUTO_TEST_CASE(simple)
 
 BOOST_AUTO_TEST_CASE(local)
 {
-#if 0
   // This test depends on the contents of /tmp, so don't normally run it.
   return;
   // LocalDirEntry root("__root__", "/tmp", rootStat);
-  LocalDirEntryProxy root = LocalDirEntry::readDir("/tmp");
+  DirEntryProxy root = LocalDirEntry::readDir("/tmp");
 
   std::stringstream ss;
   printSexp(root, ss);
   std::cout << ss.str() << '\n';
-#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END();

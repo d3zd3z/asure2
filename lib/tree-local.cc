@@ -30,9 +30,9 @@ static std::string stringify(N value)
   return ss.str();
 }
 
-LocalDirEntry::OldDirEntry(std::string const& name, std::string const& path,
-                           struct stat& stat) :
-    Entry(name, path),
+LocalDirEntry::LocalDirEntry(std::string const& name, std::string const& path,
+                             struct stat& stat) :
+    DirEntry(name, path),
     computed_(false),
     files_(), dirs_()
 {
@@ -142,14 +142,14 @@ static bool nameLess(E const& a, E const& b)
   return a->getName() < b->getName();
 }
 
-LocalDirEntryProxy LocalDirEntry::readDir(std::string const& path)
+DirEntryProxy LocalDirEntry::readDir(std::string const& path)
 {
   struct stat rootStat;
   int result = lstat(path.c_str(), &rootStat);
   if (result != 0)
     throw std::exception();
 
-  return LocalDirEntryProxy(new LocalDirEntry("__root__", path, rootStat));
+  return DirEntryProxy(new LocalDirEntry("__root__", path, rootStat));
 }
 
 void LocalDirEntry::scanDirectory()
@@ -174,16 +174,16 @@ void LocalDirEntry::scanDirectory()
     if (S_ISDIR(stat.st_mode)) {
       // std::cout << "d " << fullName << '\n';
       LocalDirEntryProxy node(new LocalDirEntry(i->name, fullName, stat));
-      dirs_.push_back(node);
+      dirs_.getList().push_back(node);
     } else {
       // std::cout << "- " << fullName << '\n';
       EntryProxy node(new LocalEntry(i->name, fullName, stat));
-      files_.push_back(node);
+      files_.getList().push_back(node);
     }
   }
 
-  std::sort(files_.begin(), files_.end(), nameLess<EntryProxy>);
-  std::sort(dirs_.begin(), dirs_.end(), nameLess<LocalDirEntryProxy>);
+  files_.getList().sort(nameLess<EntryProxy>);
+  dirs_.getList().sort(nameLess<DirEntryProxy>);
 
   computed_ = true;
 }
