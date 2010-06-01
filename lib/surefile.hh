@@ -4,11 +4,11 @@
 #define __SUREFILE_H__
 
 #include <string>
-#include "dirstream.hh"
+#include "tree.hh"
 
 namespace asure {
 
-void saveSurefile(std::string baseName, stream::DirEntryProxy root);
+void saveSurefile(std::string baseName, tree::DirEntryProxy root);
 
 }
 

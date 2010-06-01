@@ -26,7 +26,7 @@ class Emitter {
     Emitter(const string& base, ios::filtering_ostream& out) : base_(base), out_(out) { }
     ~Emitter();
 
-    void walk(stream::DirEntryProxy root);
+    void walk(tree::DirEntryProxy root);
 
     void putChar(char ch) { out_.put(ch); }
     void putInt(int val);
@@ -40,10 +40,10 @@ class Emitter {
   private:
     const string base_;
     ios::filtering_ostream& out_;
-    void emitAtts(const stream::Entry& node);
+    void emitAtts(const tree::Entry& node);
 };
 
-void saveSurefile(std::string baseName, stream::DirEntryProxy root)
+void saveSurefile(std::string baseName, tree::DirEntryProxy root)
 {
   string tmpName = baseName + extensions::tmp;
 
@@ -92,10 +92,10 @@ Emitter::putInt(int val)
 }
 
 void
-Emitter::emitAtts(const stream::Entry& node)
+Emitter::emitAtts(const tree::Entry& node)
 {
-  typedef stream::Entry::Atts::const_iterator iter;
-  const stream::Entry::Atts& atts = node.getAtts();
+  typedef tree::Entry::Atts::const_iterator iter;
+  const tree::Entry::Atts& atts = node.getAtts();
   const iter end = atts.end();
   for (iter i = atts.begin(); i != end; ++i) {
     const string& key = i->first;
@@ -108,7 +108,7 @@ Emitter::emitAtts(const stream::Entry& node)
 }
 
 void
-Emitter::walk(stream::DirEntryProxy root)
+Emitter::walk(tree::DirEntryProxy root)
 {
   const string name = root->getName();
   putChar('d');
@@ -118,17 +118,14 @@ Emitter::walk(stream::DirEntryProxy root)
   emitAtts(*root);
 
   // Walk subdirs.
-  const stream::FsDirSourceProxy here = root->getDirSource();
-  typedef stream::FsDirSource::DirIterator DI;
-  const DI diEnd = here->dirEnd();
-  for (DI i = here->dirBegin(); i != diEnd; ++i) {
+  typedef tree::DirEntry::dir_iterator DI;
+  for (DI& i = root->dirIter(); !i.empty(); ++i) {
     walk(*i);
   }
 
   // Walk the files.
-  typedef stream::FsDirSource::FileIterator FI;
-  const FI fiEnd = here->fileEnd();
-  for (FI i = here->fileBegin(); i != fiEnd; ++i) {
+  typedef tree::DirEntry::file_iterator FI;
+  for (FI& i = root->fileIter(); !i.empty(); ++i) {
     const string& name = (*i)->getName();
     putChar('f');
     putString(name);

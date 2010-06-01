@@ -4,13 +4,13 @@
 #include <iostream>
 #include <string>
 
-#include "dirstream.hh"
+#include "tree-local.hh"
 #include "surefile.hh"
 
 using std::string;
 using std::cout;
 
-using asure::stream::DirEntryProxy;
+using asure::tree::DirEntryProxy;
 
 class usage_error : public std::exception {
   public:
@@ -30,7 +30,7 @@ int main(int argc, char const* const* argv)
     string const command = argv[1];
     if (command == "scan") {
       string root = ".";
-      DirEntryProxy here = asure::stream::walkPath(root);
+      DirEntryProxy here = asure::tree::LocalDirEntry::readDir(root);
       asure::saveSurefile("2sure", here);
     } else
       throw usage_error("unknown command");
