@@ -22,12 +22,14 @@ extern "C" {
 namespace asure {
 namespace tree {
 
+namespace {
 template <class N>
-static std::string stringify(N value)
+std::string stringify(N value)
 {
   std::stringstream ss;
   ss << value;
   return ss.str();
+}
 }
 
 LocalDirEntry::LocalDirEntry(std::string const& name, std::string const& path,
@@ -96,8 +98,9 @@ LocalEntry::LocalEntry(std::string const& name, std::string const& path,
   }
 }
 
+namespace {
 // The C api is very weird.
-static std::string getLink(std::string const& path, int length)
+std::string getLink(std::string const& path, int length)
 {
   char buf[length];
   ssize_t len = readlink(path.c_str(), buf, length);
@@ -107,6 +110,7 @@ static std::string getLink(std::string const& path, int length)
     return std::string(buf, len);
   else
     return getLink(path, 2*length);
+}
 }
 
 void LocalEntry::computeExpensiveAtts()
@@ -136,10 +140,12 @@ struct NameIno {
 
 };
 
+namespace {
 template <class E>
-static bool nameLess(E const& a, E const& b)
+bool nameLess(E const& a, E const& b)
 {
   return a->getName() < b->getName();
+}
 }
 
 DirEntryProxy LocalDirEntry::readDir(std::string const& path)

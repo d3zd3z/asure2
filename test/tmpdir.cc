@@ -16,7 +16,8 @@ extern "C" {
 namespace asure {
 namespace test {
 
-static std::string makePath(int count = 5)
+namespace {
+std::string makePath(int count = 5)
 {
   std::stringstream buf;
 
@@ -34,6 +35,7 @@ static std::string makePath(int count = 5)
     return makePath(count - 1);
   }
   return path;
+}
 }
 
 TmpDir::TmpDir() : path_(makePath())

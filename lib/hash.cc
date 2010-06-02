@@ -53,12 +53,14 @@ Hash::ofFile(std::string path)
   MD5_Final(data, &ctx);
 }
 
-static inline char itoc(unsigned char val)
+namespace {
+inline char itoc(unsigned char val)
 {
   if (val < 10)
     return val + '0';
   else
     return val - 10 + 'a';
+}
 }
 
 Hash::operator std::string()
