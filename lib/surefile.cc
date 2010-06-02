@@ -29,10 +29,13 @@ class Emitter {
     void walk(tree::DirEntryProxy root);
 
     void putChar(char ch) { out_.put(ch); }
-    void putInt(int val);
-    void putString(const string& str) {
-      putInt(str.length());
-      out_.write(str.data(), str.length());
+    // void putInt(int val);
+    void putString(const string& str);
+    void putHex(unsigned ch) {
+      if (ch < 10)
+        putChar(ch + '0');
+      else
+        putChar(ch - 10 + 'a');
     }
 
     // Cleanly close the emitter, rotating log files.
@@ -78,17 +81,22 @@ Emitter::~Emitter()
   }
 }
 
-// Written so that '0' is written properly.
+// Strings have some minimal quoting, and are terminated with a space.
 void
-Emitter::putInt(int val)
+Emitter::putString(const string& str)
 {
-  assert(val >= 0);
-  if (val < 128)
-    putChar(val);
-  else {
-    putChar(val & 127);
-    putInt(val >> 7);
+  typedef string::const_iterator iter;
+  const iter end = str.end();
+  for (iter i = str.begin(); i != end; ++i) {
+    if (*i != '=' && std::isgraph(*i)) {
+      putChar(*i);
+    } else {
+      putChar('=');
+      putHex((*i >> 4) & 0xF);
+      putHex(*i & 0xF);
+    }
   }
+  putChar(' ');
 }
 
 void
@@ -97,14 +105,14 @@ Emitter::emitAtts(const tree::Entry& node)
   typedef tree::Entry::Atts::const_iterator iter;
   const tree::Entry::Atts& atts = node.getAtts();
   const iter end = atts.end();
+  putChar('[');
   for (iter i = atts.begin(); i != end; ++i) {
     const string& key = i->first;
     const string& val = i->second;
-    putChar('a');
     putString(key);
     putString(val);
   }
-  putChar('A');
+  putChar(']');
 }
 
 void
@@ -116,6 +124,7 @@ Emitter::walk(tree::DirEntryProxy root)
 
   // Dump my attributes.
   emitAtts(*root);
+  putChar('\n');
 
   // Walk subdirs.
   typedef tree::DirEntry::dir_iterator DI;
@@ -130,9 +139,11 @@ Emitter::walk(tree::DirEntryProxy root)
     putChar('f');
     putString(name);
     emitAtts(**i);
+    putChar('\n');
   }
 
-  putChar('D');
+  putChar('u');
+  putChar('\n');
 }
 
 }
