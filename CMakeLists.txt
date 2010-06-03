@@ -35,6 +35,10 @@ include_directories(${UUID_INCLUDE_DIRS})
 
 include_directories(lib)
 
+# Warn aggressively.
+add_definitions(-Wall -Wextra)
+add_definitions(-Werror)
+
 add_subdirectory(lib)
 add_subdirectory(main)
 add_subdirectory(test)

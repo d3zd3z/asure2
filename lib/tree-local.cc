@@ -212,7 +212,7 @@ class DirCloser {
  public:
   DirCloser(DIR* dir) : dir_(dir) { }
   ~DirCloser() {
-    int r = closedir(dir_);
+    closedir(dir_);
     // TODO: Log error if there is a problem.
   }
 
