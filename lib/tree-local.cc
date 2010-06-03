@@ -18,6 +18,7 @@ extern "C" {
 
 #include "hash.hh"
 #include "tree-local.hh"
+#include "exn.hh"
 
 namespace asure {
 namespace tree {
@@ -163,33 +164,39 @@ void LocalDirEntry::scanDirectory()
   if (computed_)
     return;
 
-  // std::cout << "Scanning: " << path_ << '\n';
-  std::vector<NameIno> entries;
-  NameIno::getNames(path_, entries);
+  try {
+    // std::cout << "Scanning: " << path_ << '\n';
+    std::vector<NameIno> entries;
+    NameIno::getNames(path_, entries);
 
-  // Iterate through the entries, adding them appropriately as a file or dir.
-  typedef std::vector<NameIno>::const_iterator iter;
-  for (iter i = entries.begin(); i != entries.end(); ++i) {
-    struct stat stat;
-    std::string fullName = path_ + '/' + i->name;
-    int result = lstat(fullName.c_str(), &stat);
-    if (result != 0) {
-      // TODO: Warn
-      continue;
+    // Iterate through the entries, adding them appropriately as a file or dir.
+    typedef std::vector<NameIno>::const_iterator iter;
+    for (iter i = entries.begin(); i != entries.end(); ++i) {
+      struct stat stat;
+      std::string fullName = path_ + '/' + i->name;
+      int result = lstat(fullName.c_str(), &stat);
+      if (result != 0) {
+        // TODO: Warn
+        continue;
+      }
+      if (S_ISDIR(stat.st_mode)) {
+        // std::cout << "d " << fullName << '\n';
+        LocalDirEntryProxy node(new LocalDirEntry(i->name, fullName, stat));
+        dirs_.getList().push_back(node);
+      } else {
+        // std::cout << "- " << fullName << '\n';
+        EntryProxy node(new LocalEntry(i->name, fullName, stat));
+        files_.getList().push_back(node);
+      }
     }
-    if (S_ISDIR(stat.st_mode)) {
-      // std::cout << "d " << fullName << '\n';
-      LocalDirEntryProxy node(new LocalDirEntry(i->name, fullName, stat));
-      dirs_.getList().push_back(node);
-    } else {
-      // std::cout << "- " << fullName << '\n';
-      EntryProxy node(new LocalEntry(i->name, fullName, stat));
-      files_.getList().push_back(node);
-    }
+
+    files_.getList().sort(nameLess<EntryProxy>);
+    dirs_.getList().sort(nameLess<DirEntryProxy>);
   }
-
-  files_.getList().sort(nameLess<EntryProxy>);
-  dirs_.getList().sort(nameLess<DirEntryProxy>);
+  catch (io_error& e) {
+    // If something goes wrong, log it, and pretend the directory is empty.
+    std::cout << "warning:\n-----\n" << boost::diagnostic_information(e) << "-----\n";
+  }
 
   computed_ = true;
 }
@@ -213,7 +220,7 @@ void NameIno::getNames(const std::string& path, std::vector<NameIno>& result)
 {
   DIR* dirp = opendir(path.c_str());
   if (dirp == NULL) {
-    throw std::exception(); // TODO: more information.
+    BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
   }
   DirCloser cleanup(dirp);
 

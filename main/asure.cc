@@ -6,6 +6,7 @@
 
 #include "tree-local.hh"
 #include "surefile.hh"
+#include "exn.hh"
 
 using std::string;
 using std::cout;
@@ -39,6 +40,10 @@ int main(int argc, char const* const* argv)
     cout << "Asure, version 2.00\n";
     cout << "Usage: asure {scan}\n\n";
     cout << err.what() << '\n';
+  }
+  catch (asure::exception_base& e) {
+    cout << boost::diagnostic_information(e) << '\n';
+    exit(1);
   }
   catch (int ret) {
     cout << "Raised: " << ret << '\n';
