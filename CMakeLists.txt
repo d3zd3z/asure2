@@ -28,10 +28,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 find_package(PkgConfig)
 
 pkg_check_modules(OPENSSL REQUIRED openssl)
-include_directories(${OPENSSL_INCLUDE_DIRS})
 
 pkg_check_modules(UUID REQUIRED uuid)
-include_directories(${UUID_INCLUDE_DIRS})
 
 include_directories(lib)
 

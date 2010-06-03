@@ -10,7 +10,7 @@ extern "C" {
 #include <cassert>
 #include <cstdlib>
 #include <sstream>
-#include "uuid/uuid.h"
+#include "uuid.h"
 #include "tmpdir.hh"
 
 namespace asure {
