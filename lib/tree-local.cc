@@ -116,13 +116,20 @@ std::string getLink(std::string const& path, int length)
 
 void LocalEntry::computeExpensiveAtts()
 {
-  if (atts_["kind"] == "file") {
-    Hash h;
-    h.ofFile(path_);
-    atts_["md5"] = h;
-  } else if (atts_["kind"] == "lnk") {
-    std::string target = getLink(path_, 128);
-    atts_["targ"] = target;
+  try {
+    if (atts_["kind"] == "file") {
+      Hash h;
+      h.ofFile(path_);
+      atts_["md5"] = h;
+    } else if (atts_["kind"] == "lnk") {
+      std::string target = getLink(path_, 128);
+      atts_["targ"] = target;
+    }
+  }
+  catch (io_error& e) {
+    // If we are unable to get the info, keep the file, but don't record the
+    // payload.
+    std::cout << "warning:\n-----\n" << boost::diagnostic_information(e) << "-----\n";
   }
 }
 

@@ -9,6 +9,7 @@ extern "C" {
 
 #include <memory>
 #include "hash.hh"
+#include "exn.hh"
 
 namespace asure {
 
@@ -25,6 +26,16 @@ class Buffer {
     Buffer& operator=(const Buffer&);
 };
 
+class FileCloser {
+ public:
+  FileCloser(int fd) : fd_(fd) { }
+  ~FileCloser() {
+    close(fd_);
+  }
+ private:
+  int fd_;
+};
+
 void
 Hash::ofFile(std::string path)
 {
@@ -37,18 +48,18 @@ Hash::ofFile(std::string path)
   int fd = open(path.c_str(), O_RDONLY | O_NOATIME);
   if (fd < 0 && errno == EPERM)
     fd = open(path.c_str(), O_RDONLY);
-  if (fd < 0)
-    // TODO: Better error handling.
-    throw errno;
+  if (fd < 0) {
+    BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
+  }
+  FileCloser cleanfd(fd);
   while (true) {
     ssize_t len = read(fd, buffer.get(), buffer.bufsize);
     if (len < 0)
-      throw len;
+      BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
     if (len == 0)
       break;
     MD5_Update(&ctx, buffer.get(), len);
   }
-  close(fd);
 
   MD5_Final(data, &ctx);
 }
