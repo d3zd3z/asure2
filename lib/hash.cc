@@ -7,6 +7,7 @@ extern "C" {
 #include <errno.h>
 }
 
+#include <boost/noncopyable.hpp>
 #include <memory>
 #include "hash.hh"
 #include "exn.hh"
@@ -26,14 +27,23 @@ class Buffer {
     Buffer& operator=(const Buffer&);
 };
 
-class FileCloser {
+// Wrapper around an open file that closes it properly.
+class Fd : boost::noncopyable {
  public:
-  FileCloser(int fd) : fd_(fd) { }
-  ~FileCloser() {
-    close(fd_);
+  Fd(int handle) : handle_(handle) { }
+  ~Fd() {
+    if (handle_ >= 0)
+      close(handle_);
+  }
+  operator int() const { return handle_; }
+  Fd& operator=(int handle) {
+    if (handle_ >= 0)
+      close(handle_);
+    handle_ = handle;
+    return *this;
   }
  private:
-  int fd_;
+  int handle_;
 };
 
 void
@@ -45,13 +55,12 @@ Hash::ofFile(std::string path)
   Buffer buffer;
 
   errno = 0;
-  int fd = open(path.c_str(), O_RDONLY | O_NOATIME);
+  Fd fd(open(path.c_str(), O_RDONLY | O_NOATIME));
   if (fd < 0 && errno == EPERM)
     fd = open(path.c_str(), O_RDONLY);
   if (fd < 0) {
     BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
   }
-  FileCloser cleanfd(fd);
   while (true) {
     ssize_t len = read(fd, buffer.get(), buffer.bufsize);
     if (len < 0)
