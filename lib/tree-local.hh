@@ -10,6 +10,10 @@
 namespace asure {
 namespace tree {
 
+// Return a newly allocated NodeIterator that traverses a directory in the
+// filesystem.  The iterator should be returned with delete when finished.
+NodeIterator* walkTree(std::string const& path);
+
 // A ListIterator the provides some assistance in building the list, namely a
 // backdoor to access the list.
 template <class E>
