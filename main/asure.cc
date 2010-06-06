@@ -89,9 +89,8 @@ int main(int argc, char const* const* argv)
 
     string const command = argv[1];
     if (command == "scan") {
-      string root = ".";
-      DirEntryProxy here = asure::tree::LocalDirEntry::readDir(root);
-      asure::saveSurefile("2sure", here);
+      std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
+      asure::saveSurefile("2sure", *root);
     } else if (command == "walk") {
       std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
       show(*root);

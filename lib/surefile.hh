@@ -8,7 +8,7 @@
 
 namespace asure {
 
-void saveSurefile(std::string baseName, tree::DirEntryProxy root);
+void saveSurefile(std::string const& baseName, tree::NodeIterator& root);
 
 }
 

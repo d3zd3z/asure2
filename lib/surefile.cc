@@ -26,10 +26,13 @@ class Emitter {
     Emitter(const string& base, ios::filtering_ostream& out) : base_(base), out_(out) { }
     ~Emitter();
 
-    void walk(tree::DirEntryProxy root);
+    void putRegular(char code, tree::Node const& node);
 
     void putChar(char ch) { out_.put(ch); }
-    // void putInt(int val);
+    void putSimple(char code) {
+      putChar(code);
+      putChar('\n');
+    }
     void putString(const string& str);
     void putHex(unsigned ch) {
       if (ch < 10)
@@ -43,10 +46,10 @@ class Emitter {
   private:
     const string base_;
     ios::filtering_ostream& out_;
-    void emitAtts(const tree::Entry& node);
+    void emitAtts(tree::Node const& node);
 };
 
-void saveSurefile(std::string baseName, tree::DirEntryProxy root)
+void saveSurefile(std::string const& baseName, tree::NodeIterator& root)
 {
   string tmpName = baseName + extensions::tmp;
 
@@ -59,7 +62,24 @@ void saveSurefile(std::string baseName, tree::DirEntryProxy root)
   out.write(surefileMagic.data(), surefileMagic.length());
 
   Emitter emit(baseName, out);
-  emit.walk(root);
+  for (; !root.empty(); ++root) {
+    tree::Node const& node = *root;
+
+    switch (node.getKind()) {
+      case tree::Node::ENTER:
+        emit.putRegular('d', node);
+        break;
+      case tree::Node::NODE:
+        emit.putRegular('f', node);
+        break;
+      case tree::Node::MARK:
+        emit.putSimple('-');
+        break;
+      case tree::Node::LEAVE:
+        emit.putSimple('u');
+    }
+  }
+
   emit.close();
 }
 
@@ -81,6 +101,15 @@ Emitter::~Emitter()
   }
 }
 
+void
+Emitter::putRegular(char code, tree::Node const& node)
+{
+  putChar(code);
+  putString(node.getName());
+  emitAtts(node);
+  putChar('\n');
+}
+
 // Strings have some minimal quoting, and are terminated with a space.
 void
 Emitter::putString(const string& str)
@@ -100,50 +129,20 @@ Emitter::putString(const string& str)
 }
 
 void
-Emitter::emitAtts(const tree::Entry& node)
+Emitter::emitAtts(tree::Node const& node)
 {
-  typedef tree::Entry::Atts::const_iterator iter;
-  const tree::Entry::Atts& atts = node.getAtts();
-  const iter end = atts.end();
+  tree::Node::Atts atts = node.getExpensiveAtts();
+  tree::Node::Atts const& mainAtts = node.getAtts();
+  atts.insert(mainAtts.begin(), mainAtts.end());
+
+  typedef tree::Node::Atts::const_iterator Iter;
+  Iter const end = atts.end();
   putChar('[');
-  for (iter i = atts.begin(); i != end; ++i) {
-    const string& key = i->first;
-    const string& val = i->second;
-    putString(key);
-    putString(val);
+  for (Iter i = atts.begin(); i != end; ++i) {
+    putString(i->first);
+    putString(i->second);
   }
   putChar(']');
-}
-
-void
-Emitter::walk(tree::DirEntryProxy root)
-{
-  const string name = root->getName();
-  putChar('d');
-  putString(name);
-
-  // Dump my attributes.
-  emitAtts(*root);
-  putChar('\n');
-
-  // Walk subdirs.
-  typedef tree::DirEntry::dir_iterator DI;
-  for (DI& i = root->dirIter(); !i.empty(); ++i) {
-    walk(*i);
-  }
-
-  // Walk the files.
-  typedef tree::DirEntry::file_iterator FI;
-  for (FI& i = root->fileIter(); !i.empty(); ++i) {
-    const string& name = (*i)->getName();
-    putChar('f');
-    putString(name);
-    emitAtts(**i);
-    putChar('\n');
-  }
-
-  putChar('u');
-  putChar('\n');
 }
 
 }
