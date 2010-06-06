@@ -11,8 +11,6 @@
 using std::string;
 using std::cout;
 
-using asure::tree::DirEntryProxy;
-
 class usage_error : public std::exception {
   public:
     usage_error(string const& message) throw() : message_(message) { }
