@@ -37,6 +37,11 @@ include_directories(lib)
 add_definitions(-Wall -Wextra)
 add_definitions(-Werror)
 
+# Enable optimization, even with debugging.  This can be turned off
+# for faster compiles, but is necessary to get some warnings (such as
+# unused vars.
+# add_definitions(-O)
+
 add_subdirectory(lib)
 add_subdirectory(main)
 add_subdirectory(test)

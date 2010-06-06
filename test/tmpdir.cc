@@ -46,6 +46,8 @@ TmpDir::~TmpDir()
 {
   int result = system(("rm -rf " + path_).c_str());
   assert(result == 0);
+  // Avoid a warning if assertions are off.
+  static_cast<void>(result);
 }
 
 BOOST_AUTO_TEST_SUITE(tmpdir);
