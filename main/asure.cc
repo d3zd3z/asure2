@@ -65,7 +65,7 @@ void show(NodeIterator& root)
         break;
       case Node::NODE :
         indent(depth);
-        std::cout << "- " << here.getName();
+        std::cout << "f " << here.getName();
         showAtts(here.getAtts());
         std::cout << '|';
         showAtts(here.getExpensiveAtts());
@@ -89,6 +89,11 @@ int main(int argc, char const* const* argv)
     if (command == "scan") {
       std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
       asure::saveSurefile("2sure", *root);
+    } else if (command == "show") {
+      std::string name = "2sure";
+      name += asure::extensions::base;
+      std::auto_ptr<NodeIterator> root(asure::loadSurefile(name));
+      show(*root);
     } else if (command == "walk") {
       std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
       show(*root);
