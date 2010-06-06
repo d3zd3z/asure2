@@ -41,12 +41,12 @@ void showAtts(Node::Atts const& atts)
   }
 }
 
-void show(NodeIterator* root)
+void show(NodeIterator& root)
 {
   int depth = -1;
 
-  while (!root->empty()) {
-    Node const& here = **root;
+  while (!root.empty()) {
+    Node const& here = *root;
 
     switch (here.getKind()) {
       case Node::ENTER :
@@ -75,9 +75,8 @@ void show(NodeIterator* root)
         break;
     }
 
-    ++(*root);
+    ++root;
   }
-  delete root;
 }
 
 }
@@ -94,7 +93,8 @@ int main(int argc, char const* const* argv)
       DirEntryProxy here = asure::tree::LocalDirEntry::readDir(root);
       asure::saveSurefile("2sure", here);
     } else if (command == "walk") {
-      show(asure::tree::walkTree("."));
+      std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
+      show(*root);
     } else
       throw usage_error("unknown command");
   }
