@@ -41,7 +41,7 @@ void showAtts(Node::Atts const& atts)
 
 void show(NodeIterator& root)
 {
-  int depth = -1;
+  int depth = 0;
 
   while (!root.empty()) {
     Node const& here = *root;
@@ -55,9 +55,9 @@ void show(NodeIterator& root)
         ++depth;
         break;
       case Node::LEAVE :
+        --depth;
         indent(depth);
         std::cout << "u\n";
-        --depth;
         break;
       case Node::MARK :
         indent(depth);
