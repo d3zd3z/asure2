@@ -8,7 +8,7 @@
 namespace asure {
 
 struct Hash {
-  unsigned char data[16];
+  unsigned char data[20];
   operator std::string();
 
   // Set this hash to be the contents of the given file.

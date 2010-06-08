@@ -248,7 +248,7 @@ RegularNodeWrapper::SubNode::getExpensiveAtts() const
   if (kind->second == "file") {
     Hash h;
     h.ofFile(path_);
-    atts["md5"] = h;
+    atts["sha1"] = h;
   }
 
   return atts;

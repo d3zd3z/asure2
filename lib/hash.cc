@@ -3,8 +3,8 @@
 extern "C" {
 #include <sys/types.h>
 #include <sys/fcntl.h>
-#include <openssl/md5.h>
 #include <errno.h>
+#include "sha1.h"
 }
 
 #include <boost/noncopyable.hpp>
@@ -49,8 +49,8 @@ class Fd : boost::noncopyable {
 void
 Hash::ofFile(std::string path)
 {
-  MD5_CTX ctx;
-  MD5_Init(&ctx);
+  blk_SHA_CTX ctx;
+  blk_SHA1_Init(&ctx);
 
   Buffer buffer;
 
@@ -67,10 +67,10 @@ Hash::ofFile(std::string path)
       BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
     if (len == 0)
       break;
-    MD5_Update(&ctx, buffer.get(), len);
+    blk_SHA1_Update(&ctx, buffer.get(), len);
   }
 
-  MD5_Final(data, &ctx);
+  blk_SHA1_Final(data, &ctx);
 }
 
 namespace {
@@ -85,8 +85,8 @@ inline char itoc(unsigned char val)
 
 Hash::operator std::string()
 {
-  std::string buf(32, 'X');
-  for (int i = 0; i < 16; i++) {
+  std::string buf(40, 'X');
+  for (int i = 0; i < 20; i++) {
     buf[2*i] = itoc(data[i] >> 4);
     buf[2*i+1] = itoc(data[i] & 0x0f);
   }

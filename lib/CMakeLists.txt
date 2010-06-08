@@ -1,2 +1,2 @@
-file(GLOB SureSrc *.cc)
+file(GLOB SureSrc *.cc *.c)
 add_library(sure ${SureSrc})

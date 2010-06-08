@@ -27,8 +27,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(PkgConfig)
 
-pkg_check_modules(OPENSSL REQUIRED openssl)
-
 pkg_check_modules(UUID REQUIRED uuid)
 
 include_directories(lib)
