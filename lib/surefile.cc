@@ -145,7 +145,7 @@ Emitter::emitAtts(tree::Node const& node)
 
 class SurefileIterator : public tree::NodeIterator {
  public:
-  SurefileIterator() : file(), in(), depth(0) { }
+  SurefileIterator() : file(), in(), depth(0), almostDone(false), done(false) { }
   void open(std::string const& path);
   bool empty() const { return done; }
   void operator++();
