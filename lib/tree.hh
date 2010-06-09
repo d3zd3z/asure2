@@ -38,6 +38,10 @@ class Node : boost::noncopyable {
   // returned.
   virtual Atts getExpensiveAtts() const { return Atts(); }
 
+  // Return the full attributes, combining the getAtts() results and the
+  // getExpensiveAtts().
+  Atts getFullAtts() const;
+
  protected:
   // Utility names:
   static std::string const emptyName;
@@ -56,6 +60,8 @@ class NodeIterator : boost::noncopyable {
   virtual bool empty() const = 0;
   virtual void operator++() = 0;
   virtual Node const& operator*() const = 0;
+
+  Node const* operator->() { return &(**this); }
 };
 
 }

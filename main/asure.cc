@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include "compare.hh"
 #include "tree-local.hh"
 #include "surefile.hh"
 #include "exn.hh"
@@ -94,6 +95,20 @@ int main(int argc, char const* const* argv)
       name += asure::extensions::base;
       std::auto_ptr<NodeIterator> root(asure::loadSurefile(name));
       show(*root);
+    } else if (command == "check") {
+      std::string name = "2sure";
+      name += asure::extensions::base;
+      std::auto_ptr<NodeIterator> surefile(asure::loadSurefile(name));
+      std::auto_ptr<NodeIterator> curtree(asure::tree::walkTree("."));
+      asure::compareTrees(*surefile, *curtree);
+    } else if (command == "signoff") {
+      std::string name1 = "2sure";
+      name1 += asure::extensions::bak;
+      std::string name2 = "2sure";
+      name2 += asure::extensions::base;
+      std::auto_ptr<NodeIterator> bakfile(asure::loadSurefile(name1));
+      std::auto_ptr<NodeIterator> curfile(asure::loadSurefile(name2));
+      asure::compareTrees(*bakfile, *curfile);
     } else if (command == "walk") {
       std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
       show(*root);
