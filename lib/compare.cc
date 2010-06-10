@@ -63,11 +63,8 @@ template <class M, class K>
 void operator-=(M& m, K& key)
 {
   typename M::iterator pos = m.find(key);
-  if (pos != m.end()) {
-    typename M::iterator pos2 = pos;
-    ++pos2;
-    m.erase(pos, pos2);
-  }
+  if (pos != m.end())
+    m.erase(pos);
 }
 
 void Comparer::compareAtts()
