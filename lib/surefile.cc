@@ -18,7 +18,7 @@ const string surefileMagic = "asure-2.0\n-----\n";
 
 class Emitter {
   public:
-    Emitter(const string& base, ios::filtering_ostream& out) : base_(base), out_(out) { }
+    Emitter(const string& base);
     ~Emitter();
 
     void putRegular(char code, tree::Node const& node);
@@ -38,44 +38,70 @@ class Emitter {
 
     // Cleanly close the emitter, rotating log files.
     void close();
+
+    // Write arbitrary data.
+    void write(char const* data, int length) {
+      out_.write(data, length);
+    }
   private:
     const string base_;
-    ios::filtering_ostream& out_;
+    std::ofstream file_;
+    ios::filtering_ostream out_;
     void emitAtts(tree::Node const& node);
 };
 
-void saveSurefile(std::string const& baseName, tree::NodeIterator& root)
+Emitter::Emitter(const string& base) : base_(base), file_(), out_()
 {
-  string tmpName = baseName + extensions::tmp;
+  std::string tmpName = base + extensions::tmp;
 
-  std::ofstream file(tmpName.c_str(), std::ios_base::out | std::ios_base::binary);
-  ios::filtering_ostream out;
+  file_.open(tmpName.c_str(), std::ios_base::out | std::ios_base::binary);
+  out_.push(ios::gzip_compressor());
+  out_.push(file_);
+}
 
-  out.push(ios::gzip_compressor());
-  out.push(file);
+SurefileSaver::SurefileSaver(std::string const& baseName)
+{
+  emit = new Emitter(baseName);
+  emit->write(surefileMagic.data(), surefileMagic.length());
+}
 
-  out.write(surefileMagic.data(), surefileMagic.length());
+SurefileSaver::~SurefileSaver()
+{
+  delete emit;
+}
 
-  Emitter emit(baseName, out);
+void SurefileSaver::close()
+{
+  emit->close();
+}
+
+void SurefileSaver::writeNode(tree::Node const& node)
+{
+  switch (node.getKind()) {
+    case tree::Node::ENTER:
+      emit->putRegular('d', node);
+      break;
+    case tree::Node::NODE:
+      emit->putRegular('f', node);
+      break;
+    case tree::Node::MARK:
+      emit->putSimple('-');
+      break;
+    case tree::Node::LEAVE:
+      emit->putSimple('u');
+      break;
+  }
+}
+
+void SurefileSaver::save(std::string const& baseName, tree::NodeIterator& root)
+{
+  SurefileSaver saver(baseName);
+
   for (; !root.empty(); ++root) {
-    tree::Node const& node = *root;
-
-    switch (node.getKind()) {
-      case tree::Node::ENTER:
-        emit.putRegular('d', node);
-        break;
-      case tree::Node::NODE:
-        emit.putRegular('f', node);
-        break;
-      case tree::Node::MARK:
-        emit.putSimple('-');
-        break;
-      case tree::Node::LEAVE:
-        emit.putSimple('u');
-    }
+    saver.writeNode(*root);
   }
 
-  emit.close();
+  saver.close();
 }
 
 // Upon clean close, close up the stream, and rotate the files.
