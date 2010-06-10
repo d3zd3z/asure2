@@ -57,25 +57,15 @@ class Comparer {
   std::string const& rightName() { return right->getName(); }
 };
 
-// Delete something from a map, if present.  The key should be of the type of
-// the first argument of the map.
-template <class M, class K>
-void operator-=(M& m, K& key)
-{
-  typename M::iterator pos = m.find(key);
-  if (pos != m.end())
-    m.erase(pos);
-}
-
 void Comparer::compareAtts()
 {
   Node::Atts latts = left->getFullAtts();
   Node::Atts ratts = right->getFullAtts();
 
-  latts -= "ctime";
-  ratts -= "ctime";
-  latts -= "ino";
-  ratts -= "ino";
+  latts.erase("ctime");
+  ratts.erase("ctime");
+  latts.erase("ino");
+  ratts.erase("ino");
 
   std::vector<std::string> diffs;
   typedef Node::Atts::const_iterator Iter;
