@@ -123,7 +123,7 @@ int main(int argc, char const* const* argv)
   }
   catch (usage_error& err) {
     cout << "Asure, version 2.00\n";
-    cout << "Usage: asure {scan}\n\n";
+    cout << "Usage: asure {scan|update|check|signoff|show|walk}\n\n";
     cout << err.what() << '\n';
   }
   catch (asure::exception_base& e) {
