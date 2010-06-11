@@ -109,6 +109,12 @@ int main(int argc, char const* const* argv)
       std::auto_ptr<NodeIterator> bakfile(asure::loadSurefile(name1));
       std::auto_ptr<NodeIterator> curfile(asure::loadSurefile(name2));
       asure::compareTrees(*bakfile, *curfile);
+    } else if (command == "update") {
+      std::string sureName = "2sure" + asure::extensions::base;
+      std::auto_ptr<NodeIterator> surefile(asure::loadSurefile(sureName));
+      std::auto_ptr<NodeIterator> tree(asure::tree::walkTree("."));
+      asure::SurefileSaver saver("2sure");
+      asure::updateTree(*surefile, *tree, saver);
     } else if (command == "walk") {
       std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
       show(*root);
