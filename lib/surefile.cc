@@ -1,18 +1,17 @@
 // Writing surefiles
 
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 
 #include "surefile.hh"
 #include "exn.hh"
+#include "gzstream.hh"
 
 namespace asure {
 
 using std::string;
-namespace ios = boost::iostreams;
 
 const string surefileMagic = "asure-2.0\n-----\n";
 
@@ -45,18 +44,15 @@ class Emitter {
     }
   private:
     const string base_;
-    std::ofstream file_;
-    ios::filtering_ostream out_;
+    gzstream out_;
     void emitAtts(tree::Node const& node);
 };
 
-Emitter::Emitter(const string& base) : base_(base), file_(), out_()
+Emitter::Emitter(const string& base) : base_(base), out_()
 {
   std::string tmpName = base + extensions::tmp;
 
-  file_.open(tmpName.c_str(), std::ios_base::out | std::ios_base::binary);
-  out_.push(ios::gzip_compressor());
-  out_.push(file_);
+  out_.open(tmpName.c_str(), "wb");
 }
 
 SurefileSaver::SurefileSaver(std::string const& baseName)
@@ -108,7 +104,7 @@ void SurefileSaver::save(std::string const& baseName, tree::NodeIterator& root)
 void
 Emitter::close()
 {
-  out_.reset();
+  out_.close();
   std::rename((base_ + extensions::base).c_str(), (base_ + extensions::bak).c_str());
   std::rename((base_ + extensions::tmp).c_str(), (base_ + extensions::base).c_str());
 }
@@ -116,8 +112,8 @@ Emitter::close()
 Emitter::~Emitter()
 {
   // If we didn't close properly unlink the temp file.
-  if (!out_.empty()) {
-    out_.reset();
+  if (out_.isOpen()) {
+    out_.close();
     unlink((base_ + extensions::tmp).c_str());
   }
 }
@@ -171,14 +167,13 @@ Emitter::emitAtts(tree::Node const& node)
 
 class SurefileIterator : public tree::NodeIterator {
  public:
-  SurefileIterator() : file(), in(), depth(0), almostDone(false), done(false) { }
+  SurefileIterator() : in(), depth(0), almostDone(false), done(false) { }
   void open(std::string const& path);
   bool empty() const { return done; }
   void operator++();
   tree::Node const& operator*() const { return node; }
  private:
-  std::ifstream file;
-  ios::filtering_istream in;
+  gzstream in;
 
   class SubNode : public tree::Node {
    public:
@@ -218,9 +213,7 @@ class SurefileIterator : public tree::NodeIterator {
 
 void SurefileIterator::open(std::string const& path)
 {
-  file.open(path.c_str(), std::ios_base::in | std::ios_base::binary);
-  in.push(ios::gzip_decompressor());
-  in.push(file);
+  in.open(path.c_str(), "rb");
 
   // Read in the header.
   int const len = surefileMagic.length();
@@ -315,7 +308,7 @@ char SurefileIterator::dehex(char ch)
     return ch - 'a' + 10;
   else
     parseError("Invalid hex character");
-  abort();
+  std::abort();
 }
 
 tree::NodeIterator* loadSurefile(std::string const& fullName)

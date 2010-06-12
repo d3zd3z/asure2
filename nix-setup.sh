@@ -38,16 +38,13 @@ find_store()
 	exit 1
 }
 
-BOOST=`find_store include/boost/version.hpp`
-
 # Find libpthread (and librt).
 libc=`find_store lib/libc.so`
-bzip=`find_store lib/libbz2.so`
+zlib=`find_store lib/libz.so`
 
 mkdir -p build
 cd build
-export CMAKE_PREFIX_PATH="${libc}:${bzip}"
+export CMAKE_PREFIX_PATH="${libc}:${zlib}"
 cmake \
-	-DBOOST_ROOT=${BOOST} \
 	-DCMAKE_BUILD_TYPE=DEBUG \
 	..

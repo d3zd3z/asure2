@@ -8,27 +8,13 @@ set(ASURE_VERSION_MAJOR 2)
 set(ASURE_VERSION_MINOR 0)
 set(ASURE_VERSION_SUB 0)
 
-find_path(BLORT stdio.h)
-message(${BLORT})
-
-# This shouldn't be needed, but boost doesn't seem to always find it.
-find_package(BZip2 REQUIRED)
-link_libraries(${BZIP2_LIBRARIES})
-
-find_library(RT_LIBRARY rt)
-link_libraries(${RT_LIBRARY})
-
-find_library(PTHREAD_LIBRARY pthread)
-link_libraries(${PTHREAD_LIBRARY})
-
-include(CheckIncludeFiles)
-find_package(Boost 1.41 REQUIRED iostreams unit_test_framework)
-include_directories(${Boost_INCLUDE_DIRS})
+find_package(ZLIB REQUIRED)
+link_libraries(${ZLIB_LIBRARIES})
+include_directories(${ZLIB_INCLUDE_DIRS})
 
 find_package(PkgConfig)
 
-pkg_check_modules(UUID REQUIRED uuid)
-
+include_directories(boost)
 include_directories(lib)
 
 # Warn aggressively.
