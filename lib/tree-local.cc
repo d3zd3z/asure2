@@ -10,6 +10,7 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <cassert>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -283,8 +284,8 @@ void DirNodeWrapper::advance(NodeDeque& dirs)
       }
     }
   }
-  catch (io_error& e) {
-    std::cout << "warning:\n-----\n" << boost::diagnostic_information(e) << "-----\n";
+  catch (IO_error& e) {
+    std::cout << "warning: " << e.what() << '\n';
   }
 
   typedef std::vector<NodeWrapper*>::const_reverse_iterator riter;
@@ -312,9 +313,9 @@ NodeIterator* walkTree(std::string const& path)
   struct stat rootStat;
   int result = lstat(path.c_str(), &rootStat);
   if (result != 0)
-    BOOST_THROW_EXCEPTION(io_error() << path_code(path) << errno_code(errno));
+    throw IO_error("walkTree", path);
   if (!S_ISDIR(rootStat.st_mode))
-    BOOST_THROW_EXCEPTION(io_error() << path_code(path));
+    throw IO_error("root is not directory", path);
 
   NodeWrapper* root = new DirNodeWrapper("__root__", path, rootStat);
   tree->nodes.push_front(root);
@@ -341,7 +342,7 @@ void NameIno::getNames(const std::string& path, std::vector<NameIno>& result)
 {
   DIR* dirp = opendir(path.c_str());
   if (dirp == NULL) {
-    BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
+    throw IO_error("getNames(opendir)", path);
   }
   DirCloser cleanup(dirp);
 

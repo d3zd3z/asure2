@@ -201,7 +201,7 @@ class SurefileIterator : public tree::NodeIterator {
   bool almostDone, done;
 
   void parseError(char const* msg) {
-    BOOST_THROW_EXCEPTION(parse_error() << message_code(msg));
+    throw Parse_error(msg);
   }
 
   void expect(char expCh) {

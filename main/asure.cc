@@ -1,6 +1,7 @@
 /* File integrity checking.
  */
 
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -126,9 +127,9 @@ int main(int argc, char const* const* argv)
     cout << "Usage: asure {scan|update|check|signoff|show|walk}\n\n";
     cout << err.what() << '\n';
   }
-  catch (asure::exception_base& e) {
-    cout << boost::diagnostic_information(e) << '\n';
-    exit(1);
+  catch (asure::Exception_base& e) {
+    cout << "Uncaught exception: " << e.what() << '\n';
+    std::exit(1);
   }
   catch (int ret) {
     cout << "Raised: " << ret << '\n';

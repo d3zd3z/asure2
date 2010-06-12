@@ -59,12 +59,12 @@ Hash::ofFile(std::string path)
   if (fd < 0 && errno == EPERM)
     fd = open(path.c_str(), O_RDONLY);
   if (fd < 0) {
-    BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
+    throw IO_error("Hash::ofFile", path);
   }
   while (true) {
     ssize_t len = read(fd, buffer.get(), buffer.bufsize);
     if (len < 0)
-      BOOST_THROW_EXCEPTION(io_error() << errno_code(errno) << path_code(path));
+      throw IO_error("Hash::ofFile(read)", path);
     if (len == 0)
       break;
     blk_SHA1_Update(&ctx, buffer.get(), len);
