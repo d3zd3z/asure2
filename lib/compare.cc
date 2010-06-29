@@ -272,7 +272,8 @@ void Updater::dir()
         Node::Atts const& mainAtts = left->getAtts();
         fullAtts.insert(mainAtts.begin(), mainAtts.end());
 
-        saver.writeNode(AttNode(*right, fullAtts));
+        AttNode tmp(*right, fullAtts);
+        saver.writeNode(tmp);
       } else {
         saver.writeNode(*right);
       }
