@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 
+#include <getopt.h>
+
 #include "compare.hh"
 #include "tree-local.hh"
 #include "surefile.hh"
@@ -79,52 +81,94 @@ void show(NodeIterator& root)
   }
 }
 
+std::string command;
+string sureFile = "2sure";
+
+void parseArgs(int argc, char const* const* argv)
+{
+  static struct option long_options[] = {
+    {"surefile", 1, 0, 'f'},
+    {"file", 1, 0, 'f'},
+    {"help", 0, 0, '?'},
+    {0, 0, 0, 0}
+  };
+
+  int option_index = 0;
+  while (true) {
+    int c = getopt_long(argc, const_cast<char* const*>(argv), "?f:", long_options, &option_index);
+    if (c == -1)
+      break;
+
+    switch (c) {
+      case 0:
+        if (!command.empty())
+          throw usage_error("expecting a single command");
+        command = optarg;
+        break;
+
+      case 'f':
+        sureFile = optarg;
+        break;
+
+      case '?':
+        throw usage_error("");
+
+      default:
+        throw usage_error("invalid usage");
+    }
+  }
+
+  if (optind == argc)
+    throw usage_error("expecting a command");
+  if (optind != argc - 1)
+    throw usage_error("expecting only a single command");
+  command = argv[optind];
+}
+
 }
 
 int main(int argc, char const* const* argv)
 {
   try {
-    if (argc != 2)
-      throw usage_error("expecting a single argument");
+    parseArgs(argc, argv);
 
-    string const command = argv[1];
     if (command == "scan") {
       std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
-      asure::SurefileSaver::save("2sure", *root);
+      asure::SurefileSaver::save(sureFile, *root);
     } else if (command == "show") {
-      std::string name = "2sure";
+      std::string name = sureFile;
       name += asure::extensions::base;
       std::auto_ptr<NodeIterator> root(asure::loadSurefile(name));
       show(*root);
     } else if (command == "check") {
-      std::string name = "2sure";
+      std::string name = sureFile;
       name += asure::extensions::base;
       std::auto_ptr<NodeIterator> surefile(asure::loadSurefile(name));
       std::auto_ptr<NodeIterator> curtree(asure::tree::walkTree("."));
       asure::compareTrees(*surefile, *curtree);
     } else if (command == "signoff") {
-      std::string name1 = "2sure";
+      std::string name1 = sureFile;
       name1 += asure::extensions::bak;
-      std::string name2 = "2sure";
+      std::string name2 = sureFile;
       name2 += asure::extensions::base;
       std::auto_ptr<NodeIterator> bakfile(asure::loadSurefile(name1));
       std::auto_ptr<NodeIterator> curfile(asure::loadSurefile(name2));
       asure::compareTrees(*bakfile, *curfile);
     } else if (command == "update") {
-      std::string sureName = "2sure" + asure::extensions::base;
+      std::string sureName = sureFile + asure::extensions::base;
       std::auto_ptr<NodeIterator> surefile(asure::loadSurefile(sureName));
       std::auto_ptr<NodeIterator> tree(asure::tree::walkTree("."));
-      asure::SurefileSaver saver("2sure");
+      asure::SurefileSaver saver(sureFile);
       asure::updateTree(*surefile, *tree, saver);
     } else if (command == "walk") {
       std::auto_ptr<NodeIterator> root(asure::tree::walkTree("."));
       show(*root);
     } else
-      throw usage_error("unknown command");
+      throw usage_error("unknown command: " + command);
   }
   catch (usage_error& err) {
-    cout << "Asure, version 2.00\n";
-    cout << "Usage: asure {scan|update|check|signoff|show|walk}\n\n";
+    cout << "Asure, version 2.01\n";
+    cout << "Usage: asure [{-f|--surefile|--file} name] {scan|update|check|signoff|show|walk}\n\n";
     cout << err.what() << '\n';
   }
   catch (asure::Exception_base& e) {
